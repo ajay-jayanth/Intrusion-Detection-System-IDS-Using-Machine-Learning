@@ -37,15 +37,15 @@ run_details['model parameters'] = model_parameters
 
 st.header('Dataset')
 dataset = st.radio('Choose Dataset:', ['Car-Hacking Dataset', 'CICIDS2017 Dataset'], index=None)
+dataset = 'CICIDS2017_sample.csv' if dataset == 'CICIDS2017 Dataset' else None
 run_details['dataset'] = dataset
-
 
 
 #Tree based details
 def runTreeBased():
     #data I need
     config = {
-        "dataset": "CICIDS2017_sample.csv",
+        "dataset": run_details['dataset'],
         "features": {
             #deafult to 1.0, paper uses .9. This value removes features until we only use the top 
             #"feature-trimming" features in our model
@@ -63,11 +63,13 @@ def runTreeBased():
 
         #only have to give this a value if "XGBoost" is in "model_types"
         "XGBoost_params":{
-            "n_estimators": 10 #10 is deafult, user can pick any integer
+            "n_estimators": 10
         }
     }
 
     result = TreeBased.run(config)
-    print(result)
+    st.write(result['classification_report'])
 
-runTreeBased()
+run_button = st.button('Run')
+if run_button:
+    runTreeBased()
