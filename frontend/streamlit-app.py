@@ -59,7 +59,7 @@ def runTreeBased():
         },
         #possible model_type values are ["decision tree", "random forest","extra trees", "XGBoost"]
         #is list of the model types user want to use, if multiple models it returns the stacking results
-        "model_types": ["decision tree", "random forest","extra trees", "XGBoost"],
+        "model_types": ["decision tree"],
 
         #only have to give this a value if "XGBoost" is in "model_types"
         "XGBoost_params":{
@@ -68,7 +68,7 @@ def runTreeBased():
     }
 
     result = TreeBased.run(config)
-    st.write(result['classification_report'])
+    st.write(result)
 
 run_button = st.button('Run')
 if run_button:
