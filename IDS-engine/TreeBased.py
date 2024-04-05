@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import os
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.model_selection import train_test_split
@@ -12,32 +13,9 @@ import xgboost as xgb
 from xgboost import plot_importance
 from imblearn.over_sampling import SMOTE
 
-#data I need
-config = {
-    "dataset": "CICIDS2017_sample.csv",
-    "features": {
-        #deafult to 1.0, paper uses .9. This value removes features until we only use the top 
-        #"feature-trimming" features in our model
-        "feature_trimming": 1.0
-    },
-    #default to this value, if not using SMOTE have empty dictionary
-    "SMOTE":{
-        #posible key options [0,6]
-        #possible value options- any integer
-        4: 1500
-    },
-    #possible model_type values are ["decision tree", "random forest","extra trees", "XGBoost"]
-    #is list of the model types user want to use, if multiple models it returns the stacking results
-    "model_types": ["decision tree"],
-
-    #only have to give this a value if "XGBoost" is in "model_types"
-    "XGBoost_params":{
-        "n_estimators": 10 #10 is deafult, user can pick any integer
-    }
-}
-
 def run(config):
-    df = pd.read_csv('./data/{}'.format(config['dataset']))
+    print('{}/../data/{}'.format(__file__, config['dataset']))
+    df = pd.read_csv('{}/../data/{}'.format(__file__, config['dataset']))
 
     # Min-max normalization
     numeric_features = df.dtypes[df.dtypes != 'object'].index
@@ -266,6 +244,3 @@ def run(config):
         result['classification_report'] = model_results[model_type]['classification_report']
         result['top_three_features'] = model_results[model_type]['top_three_features']
     return result
-
-result = run(config)
-print(result)
