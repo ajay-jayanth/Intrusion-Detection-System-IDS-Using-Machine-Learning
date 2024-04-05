@@ -14,7 +14,56 @@ from sklearn.tree import DecisionTreeClassifier
 import xgboost as xgb
 from xgboost import plot_importance
 
-df = pd.read_csv('./data/CICIDS2017_sample.csv') 
+# Define inputs dictionary for hyperparameters
+inputs = {}
+outputs = {}
+
+# Random Forest Classifier
+inputs['random_forest'] = {
+    'n_estimators': {'min': 10, 'max': 200, 'step': 1},
+    'max_depth': {'min': 5, 'max': 50, 'step': 1},
+    'max_features': {'min': 1, 'max': 20, 'step': 1},
+    'min_samples_split': {'min': 2, 'max': 11, 'step': 1},
+    'min_samples_leaf': {'min': 1, 'max': 11, 'step': 1},
+    'criterion': ['gini', 'entropy']
+}
+
+# Decision Tree Classifier
+inputs['decision_tree'] = {
+    'max_depth': {'min': 1, 'max': 50, 'step': 1},
+    'max_features': {'min': 1, 'max': 20, 'step': 1},
+    'min_samples_split': {'min': 2, 'max': 11, 'step': 1},
+    'min_samples_leaf': {'min': 1, 'max': 11, 'step': 1},
+    'criterion': ['gini', 'entropy']
+}
+
+# Extra Trees Classifier
+inputs['extra_trees'] = {
+    'n_estimators': {'min': 10, 'max': 200, 'step': 1},
+    'max_depth': {'min': 5, 'max': 50, 'step': 1},
+    'max_features': {'min': 1, 'max': 20, 'step': 1},
+    'min_samples_split': {'min': 2, 'max': 11, 'step': 1},
+    'min_samples_leaf': {'min': 1, 'max': 11, 'step': 1},
+    'criterion': ['gini', 'entropy']
+}
+
+# XGBoost Classifier
+inputs['xgboost'] = {
+    'n_estimators': {'min': 10, 'max': 100, 'step': 5},
+    'max_depth': {'min': 4, 'max': 100, 'step': 1},
+    'learning_rate': {'mean': 0.01, 'std': 0.9}
+}
+
+# Stacking Classifier
+inputs['stack'] = {
+    'n_estimators': {'min': 10, 'max': 100, 'step': 5},
+    'max_depth': {'min': 4, 'max': 100, 'step': 1},
+    'learning_rate': {'mean': 0.01, 'std': 0.9}
+}
+
+#Read dataset
+df = pd.read_csv('/kaggle/input/mth-data/CICIDS2017_sample.csv') 
+# The results in this code is based on the original CICIDS2017 dataset. Please go to cell [21] if you work on the sampled dataset. 
 
 # Z-score normalization
 features = df.dtypes[df.dtypes != 'object'].index
@@ -29,6 +78,10 @@ df.iloc[:, -1] = labelencoder.fit_transform(df.iloc[:, -1])
 # retain the minority class instances and sample the majority class instances
 df_minor = df[(df['Label']==6)|(df['Label']==1)|(df['Label']==4)]
 df_major = df.drop(df_minor.index)
+
+X = df_major.drop(['Label'],axis=1) 
+y = df_major.iloc[:, -1].values.reshape(-1,1)
+y=np.ravel(y)
 
 X = df_major.drop(['Label'],axis=1) 
 y = df_major.iloc[:, -1].values.reshape(-1,1)
@@ -58,13 +111,8 @@ result = result.drop(['klabel'],axis=1)
 print(type(result))
 result = pd.concat([result, df_minor], ignore_index=True)
 
-result.to_csv('CICIDS2017_sample_km.csv',index=0)
-
-
-
-
 # Read the sampled dataset
-df=pd.read_csv('./data/CICIDS2017_sample_km.csv')
+df=result
 
 X = df.drop(['Label'],axis=1).values
 y = df.iloc[:, -1].values.reshape(-1,1)
@@ -72,12 +120,8 @@ y=np.ravel(y)
 
 X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 0.8, test_size = 0.2, random_state = 0,stratify = y)
 
-
-
-
 from sklearn.feature_selection import mutual_info_classif
 importances = mutual_info_classif(X_train, y_train)
-
 
 # calculate the sum of importance scores
 f_list = sorted(zip(map(lambda x: round(x, 4), importances), features), reverse=True)
@@ -86,6 +130,7 @@ fs = []
 for i in range(0, len(f_list)):
     Sum = Sum + f_list[i][0]
     fs.append(f_list[i][1])
+
 
 # select the important features from top to bottom until the accumulated importance reaches 90%
 f_list2 = sorted(zip(map(lambda x: round(x, 4), importances/Sum), features), reverse=True)
@@ -101,35 +146,17 @@ X_fs = df[fs].values
 
 from FCBF_module import FCBF, FCBFK, FCBFiP, get_i
 fcbf = FCBFK(k = 20)
-#fcbf.fit(X_fs, y)
+
 
 X_fss = fcbf.fit_transform(X_fs,y)
 
 X_train, X_test, y_train, y_test = train_test_split(X_fss,y, train_size = 0.8, test_size = 0.2, random_state = 0,stratify = y)
-
 
 from imblearn.over_sampling import SMOTE
 smote=SMOTE(n_jobs=-1,sampling_strategy={2:1000,4:1000})
 
 X_train, y_train = smote.fit_resample(X_train, y_train)
 
-
-xg = xgb.XGBClassifier(n_estimators = 10)
-xg.fit(X_train,y_train)
-xg_score=xg.score(X_test,y_test)
-y_predict=xg.predict(X_test)
-y_true=y_test
-print('Accuracy of XGBoost: '+ str(xg_score))
-precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-print('Precision of XGBoost: '+(str(precision)))
-print('Recall of XGBoost: '+(str(recall)))
-print('F1-score of XGBoost: '+(str(fscore)))
-print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
 
 
 
@@ -150,9 +177,14 @@ def objective(params):
     return {'loss':-score, 'status': STATUS_OK }
 
 space = {
-    'n_estimators': hp.quniform('n_estimators', 10, 100, 5),
-    'max_depth': hp.quniform('max_depth', 4, 100, 1),
-    'learning_rate': hp.normal('learning_rate', 0.01, 0.9),
+    'n_estimators': hp.quniform('n_estimators', inputs['xgboost']['n_estimators']['min'],
+                                inputs['xgboost']['n_estimators']['max'],
+                                inputs['xgboost']['n_estimators']['step']),
+    'max_depth': hp.quniform('max_depth', inputs['xgboost']['max_depth']['min'],
+                             inputs['xgboost']['max_depth']['max'],
+                             inputs['xgboost']['max_depth']['step']),
+    'learning_rate': hp.normal('learning_rate', inputs['xgboost']['learning_rate']['mean'],
+                               inputs['xgboost']['learning_rate']['std'])
 }
 
 best = fmin(fn=objective,
@@ -160,6 +192,8 @@ best = fmin(fn=objective,
             algo=tpe.suggest,
             max_evals=20)
 print("XGBoost: Hyperopt estimated optimum {}".format(best))
+
+
 
 xg = xgb.XGBClassifier(learning_rate= 0.7340229699980686, n_estimators = 70, max_depth = 14)
 xg.fit(X_train,y_train)
@@ -172,11 +206,8 @@ print('Precision of XGBoost: '+(str(precision)))
 print('Recall of XGBoost: '+(str(recall)))
 print('F1-score of XGBoost: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
+
+outputs.update({'xgboost_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 
 xg_train=xg.predict(X_train)
@@ -194,12 +225,7 @@ print('Precision of RF: '+(str(precision)))
 print('Recall of RF: '+(str(recall)))
 print('F1-score of RF: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
-
+outputs.update({'random_forest':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 
 # Hyperparameter optimization of random forest
@@ -222,12 +248,22 @@ def objective(params):
     return {'loss':-score, 'status': STATUS_OK }
 # Define the hyperparameter configuration space
 space = {
-    'n_estimators': hp.quniform('n_estimators', 10, 200, 1),
-    'max_depth': hp.quniform('max_depth', 5, 50, 1),
-    "max_features":hp.quniform('max_features', 1, 20, 1),
-    "min_samples_split":hp.quniform('min_samples_split',2,11,1),
-    "min_samples_leaf":hp.quniform('min_samples_leaf',1,11,1),
-    "criterion":hp.choice('criterion',['gini','entropy'])
+    'n_estimators': hp.quniform('n_estimators', inputs['random_forest']['n_estimators']['min'],
+                                inputs['random_forest']['n_estimators']['max'],
+                                inputs['random_forest']['n_estimators']['step']),
+    'max_depth': hp.quniform('max_depth', inputs['random_forest']['max_depth']['min'],
+                             inputs['random_forest']['max_depth']['max'],
+                             inputs['random_forest']['max_depth']['step']),
+    'max_features': hp.quniform('max_features', inputs['random_forest']['max_features']['min'],
+                                inputs['random_forest']['max_features']['max'],
+                                inputs['random_forest']['max_features']['step']),
+    'min_samples_split': hp.quniform('min_samples_split', inputs['random_forest']['min_samples_split']['min'],
+                                     inputs['random_forest']['min_samples_split']['max'],
+                                     inputs['random_forest']['min_samples_split']['step']),
+    'min_samples_leaf': hp.quniform('min_samples_leaf', inputs['random_forest']['min_samples_leaf']['min'],
+                                    inputs['random_forest']['min_samples_leaf']['max'],
+                                    inputs['random_forest']['min_samples_leaf']['step']),
+    'criterion': hp.choice('criterion', inputs['random_forest']['criterion'])
 }
 
 best = fmin(fn=objective,
@@ -248,12 +284,7 @@ print('Precision of RF: '+(str(precision)))
 print('Recall of RF: '+(str(recall)))
 print('F1-score of RF: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
-
+outputs.update({'random_forest_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 rf_train=rf_hpo.predict(X_train)
 rf_test=rf_hpo.predict(X_test)
@@ -271,12 +302,7 @@ print('Precision of DT: '+(str(precision)))
 print('Recall of DT: '+(str(recall)))
 print('F1-score of DT: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
-
+outputs.update({'dt':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 
 # Hyperparameter optimization of decision tree
@@ -297,12 +323,12 @@ def objective(params):
 
     return {'loss':-score, 'status': STATUS_OK }
 # Define the hyperparameter configuration space
-space = {
-    'max_depth': hp.quniform('max_depth', 5, 50, 1),
-    "max_features":hp.quniform('max_features', 1, 20, 1),
-    "min_samples_split":hp.quniform('min_samples_split',2,11,1),
-    "min_samples_leaf":hp.quniform('min_samples_leaf',1,11,1),
-    "criterion":hp.choice('criterion',['gini','entropy'])
+dt_space = {
+    'max_depth': hp.quniform('max_depth', inputs['decision_tree']['max_depth']['min'], inputs['decision_tree']['max_depth']['max'], inputs['decision_tree']['max_depth']['step']),
+    'max_features': hp.quniform('max_features', inputs['decision_tree']['max_features']['min'], inputs['decision_tree']['max_features']['max'], inputs['decision_tree']['max_features']['step']),
+    'min_samples_split': hp.quniform('min_samples_split', inputs['decision_tree']['min_samples_split']['min'], inputs['decision_tree']['min_samples_split']['max'], inputs['decision_tree']['min_samples_split']['step']),
+    'min_samples_leaf': hp.quniform('min_samples_leaf', inputs['decision_tree']['min_samples_leaf']['min'], inputs['decision_tree']['min_samples_leaf']['max'], inputs['decision_tree']['min_samples_leaf']['step']),
+    'criterion': hp.choice('criterion', inputs['decision_tree']['criterion'])
 }
 
 best = fmin(fn=objective,
@@ -323,13 +349,7 @@ print('Precision of DT: '+(str(precision)))
 print('Recall of DT: '+(str(recall)))
 print('F1-score of DT: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
-
-
+outputs.update({'decision_tree_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 dt_train=dt_hpo.predict(X_train)
 dt_test=dt_hpo.predict(X_test)
@@ -346,11 +366,8 @@ print('Precision of ET: '+(str(precision)))
 print('Recall of ET: '+(str(recall)))
 print('F1-score of ET: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
+outputs.update({'extra_trees':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+
 
 
 # Hyperparameter optimization of extra trees
@@ -373,12 +390,22 @@ def objective(params):
     return {'loss':-score, 'status': STATUS_OK }
 # Define the hyperparameter configuration space
 space = {
-    'n_estimators': hp.quniform('n_estimators', 10, 200, 1),
-    'max_depth': hp.quniform('max_depth', 5, 50, 1),
-    "max_features":hp.quniform('max_features', 1, 20, 1),
-    "min_samples_split":hp.quniform('min_samples_split',2,11,1),
-    "min_samples_leaf":hp.quniform('min_samples_leaf',1,11,1),
-    "criterion":hp.choice('criterion',['gini','entropy'])
+    'n_estimators': hp.quniform('n_estimators', inputs['extra_trees']['n_estimators']['min'],
+                                inputs['extra_trees']['n_estimators']['max'],
+                                inputs['extra_trees']['n_estimators']['step']),
+    'max_depth': hp.quniform('max_depth', inputs['extra_trees']['max_depth']['min'],
+                             inputs['extra_trees']['max_depth']['max'],
+                             inputs['extra_trees']['max_depth']['step']),
+    'max_features': hp.quniform('max_features', inputs['extra_trees']['max_features']['min'],
+                                inputs['extra_trees']['max_features']['max'],
+                                inputs['extra_trees']['max_features']['step']),
+    'min_samples_split': hp.quniform('min_samples_split', inputs['extra_trees']['min_samples_split']['min'],
+                                     inputs['extra_trees']['min_samples_split']['max'],
+                                     inputs['extra_trees']['min_samples_split']['step']),
+    'min_samples_leaf': hp.quniform('min_samples_leaf', inputs['extra_trees']['min_samples_leaf']['min'],
+                                    inputs['extra_trees']['min_samples_leaf']['max'],
+                                    inputs['extra_trees']['min_samples_leaf']['step']),
+    'criterion': hp.choice('criterion', inputs['extra_trees']['criterion'])
 }
 
 best = fmin(fn=objective,
@@ -386,6 +413,10 @@ best = fmin(fn=objective,
             algo=tpe.suggest,
             max_evals=20)
 print("Random Forest: Hyperopt estimated optimum {}".format(best))
+
+
+
+
 
 et_hpo = ExtraTreesClassifier(n_estimators = 53, min_samples_leaf = 1, max_depth = 31, min_samples_split = 5, max_features = 20, criterion = 'entropy')
 et_hpo.fit(X_train,y_train) 
@@ -398,21 +429,16 @@ print('Precision of ET: '+(str(precision)))
 print('Recall of ET: '+(str(recall)))
 print('F1-score of ET: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
+outputs.update({'extra_trees_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 
 et_train=et_hpo.predict(X_train)
 et_test=et_hpo.predict(X_test)
 
 
-
 base_predictions_train = pd.DataFrame( {
     'DecisionTree': dt_train.ravel(),
-        'RandomForest': rf_train.ravel(),
+    'RandomForest': rf_train.ravel(),
      'ExtraTrees': et_train.ravel(),
      'XgBoost': xg_train.ravel(),
     })
@@ -429,7 +455,6 @@ rf_test=rf_test.reshape(-1, 1)
 xg_test=xg_test.reshape(-1, 1)
 
 
-
 x_train = np.concatenate(( dt_train, et_train, rf_train, xg_train), axis=1)
 x_test = np.concatenate(( dt_test, et_test, rf_test, xg_test), axis=1)
 
@@ -444,11 +469,7 @@ print('Precision of Stacking: '+(str(precision)))
 print('Recall of Stacking: '+(str(recall)))
 print('F1-score of Stacking: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
+outputs.update({'stack':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
 
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
@@ -468,16 +489,22 @@ def objective(params):
     return {'loss':-score, 'status': STATUS_OK }
 
 space = {
-    'n_estimators': hp.quniform('n_estimators', 10, 100, 5),
-    'max_depth': hp.quniform('max_depth', 4, 100, 1),
-    'learning_rate': hp.normal('learning_rate', 0.01, 0.9),
+    'n_estimators': hp.quniform('n_estimators', inputs['stack']['n_estimators']['min'],
+                                inputs['stack']['n_estimators']['max'],
+                                inputs['stack']['n_estimators']['step']),
+    'max_depth': hp.quniform('max_depth', inputs['stack']['max_depth']['min'],
+                             inputs['stack']['max_depth']['max'],
+                             inputs['stack']['max_depth']['step']),
+    'learning_rate': hp.normal('learning_rate', inputs['stack']['learning_rate']['mean'],
+                                                inputs['stack']['learning_rate']['std'])
 }
 
 best = fmin(fn=objective,
             space=space,
             algo=tpe.suggest,
             max_evals=20)
-print("XGBoost: Hyperopt estimated optimum {}".format(best))
+print("Stacking: Hyperopt estimated optimum {}".format(best))
+
 
 
 xg = xgb.XGBClassifier(learning_rate= 0.19229249758051492, n_estimators = 30, max_depth = 36)
@@ -491,25 +518,16 @@ print('Precision of XGBoost: '+(str(precision)))
 print('Recall of XGBoost: '+(str(recall)))
 print('F1-score of XGBoost: '+(str(fscore)))
 print(classification_report(y_true,y_predict))
-cm=confusion_matrix(y_true,y_predict)
-f,ax=plt.subplots(figsize=(5,5))
-sns.heatmap(cm,annot=True,linewidth=0.5,linecolor="red",fmt=".0f",ax=ax)
-plt.xlabel("y_pred")
-plt.ylabel("y_true")
+outputs.update({'stack_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
 
-
-df=pd.read_csv('CICIDS2017_sample_km.csv')
-
+df=result
 df1 = df[df['Label'] != 5]
 df1['Label'][df1['Label'] > 0] = 1
-df1.to_csv('CICIDS2017_sample_km_without_portscan.csv',index=0)
+# df1.to_csv('/kaggle/working/CICIDS2017_sample_km_without_portscan.csv',index=0)
 
 df2 = df[df['Label'] == 5]
 df2['Label'][df2['Label'] == 5] = 1
-df2.to_csv('CICIDS2017_sample_km_portscan.csv',index=0)
-
-df1 = pd.read_csv('CICIDS2017_sample_km_without_portscan.csv')
-df2 = pd.read_csv('CICIDS2017_sample_km_portscan.csv')
+# df2.to_csv('/kaggle/working/CICIDS2017_sample_km_portscan.csv',index=0)
 
 features = df1.drop(['Label'],axis=1).dtypes[df1.dtypes != 'object'].index
 df1[features] = df1[features].apply(
@@ -522,7 +540,6 @@ df2 = df2.fillna(0)
 df2p=df1[df1['Label']==0]
 df2pp=df2p.sample(n=None, frac=1255/18225, replace=False, weights=None, random_state=None, axis=0)
 df2=pd.concat([df2, df2pp])
-
 
 df = pd.concat([df1, df2], ignore_index=True)
 
@@ -553,7 +570,8 @@ for i in range(0, len(f_list2)):
     Sum2 = Sum2 + f_list2[i][0]
     fs.append(f_list2[i][1])
     if Sum2>=0.9:
-        break    
+        break        
+
 
 X_fs = df[fs].values
 
@@ -565,10 +583,17 @@ fcbf = FCBFK(k = 20)
 X_fss = fcbf.fit_transform(X_fs,y)
 
 
+
 from sklearn.decomposition import KernelPCA
 kpca = KernelPCA(n_components = 10, kernel = 'rbf')
 kpca.fit(X_fss, y)
 X_kpca = kpca.transform(X_fss)
+
+# from sklearn.decomposition import PCA
+# kpca = PCA(n_components = 10)
+# kpca.fit(X_fss, y)
+# X_kpca = kpca.transform(X_fss)
+
 
 
 X_train = X_kpca[:len(df1)]
@@ -577,9 +602,11 @@ X_test = X_kpca[len(df1):]
 y_test = y[len(df1):]
 
 
+
 from imblearn.over_sampling import SMOTE
 smote=SMOTE(n_jobs=-1,sampling_strategy={1:18225})
 X_train, y_train = smote.fit_resample(X_train, y_train)
+
 
 
 from sklearn.cluster import KMeans
@@ -588,6 +615,7 @@ from sklearn.cluster import SpectralClustering,AgglomerativeClustering,AffinityP
 from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
 from sklearn.metrics import classification_report
 from sklearn import metrics
+
 
 def CL_kmeans(X_train, X_test, y_train, y_test,n,b=100):
     km_cluster = MiniBatchKMeans(n_clusters=n,batch_size=b)
@@ -619,13 +647,11 @@ def CL_kmeans(X_train, X_test, y_train, y_test,n,b=100):
         else:
             print("-1")
     print(classification_report(y_test, result2))
-    cm=confusion_matrix(y_test,result2)
-    acc=metrics.accuracy_score(y_test,result2)
-    print(str(acc))
-    print(cm)
 
 
-    CL_kmeans(X_train, X_test, y_train, y_test, 8)
+
+
+CL_kmeans(X_train, X_test, y_train, y_test, 8)
 
 np.int = np.int32
 
@@ -671,7 +697,6 @@ def objective(**params):
     cm=metrics.accuracy_score(y_test,result2)
     print(str(n)+" "+str(cm))
     return (1-cm)
-
 from skopt import gp_minimize
 import time
 t1=time.time()
@@ -680,6 +705,7 @@ t2=time.time()
 print(t2-t1)
 print("Best score=%.4f" % (1-res_gp.fun))
 print("""Best parameters: n_clusters=%d""" % (res_gp.x[0]))
+
 
 #Hyperparameter optimization by BO-TPE
 from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
@@ -734,6 +760,5 @@ best = fmin(fn=objective,
             max_evals=20)
 print("Random Forest: Hyperopt estimated optimum {}".format(best))
 
+
 CL_kmeans(X_train, X_test, y_train, y_test, 16)
-
-
