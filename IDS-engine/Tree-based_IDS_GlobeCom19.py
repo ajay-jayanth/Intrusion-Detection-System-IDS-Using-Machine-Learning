@@ -28,7 +28,7 @@ config = {
     },
     #possible model_type values are ["decision tree", "random forest","extra trees", "XGBoost"]
     #is list of the model types user want to use, if multiple models it returns the stacking results
-    "model_types": ["XGBoost"],
+    "model_types": ["decision tree"],
 
     #only have to give this a value if "XGBoost" is in "model_types"
     "XGBoost_params":{
