@@ -1,0 +1,259 @@
+{
+    "runs": [
+        {
+            "rundata": {
+                "name": "run 1",
+                "timestamp": "04/16/2024"
+            },
+            "config": {
+                "dataset": "CICIDS2017_sample_km",
+                "smote": "{\"2\": 1000, \"4\": 1000}",
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "boosting_type": "Plain"
+            },
+            "result": {
+                "LightGBM_accuracy": 0.9958955223880597,
+                "LightGBM_precision": 0.9959426274123752,
+                "LightGBM_recall": 0.9958955223880597,
+                "LightGBM_F1_score": 0.9958614789609438,
+                "LightGBM_F1_classes_score": [
+                    0.9975389663658737,
+                    0.9922279792746114,
+                    0.875,
+                    0.9967266775777414,
+                    0.5714285714285714,
+                    0.9935483870967742,
+                    0.9966703662597114
+                ],
+                "XGBoost_accuracy": 0.9966417910447761,
+                "XGBoost_precision": 0.9966510466051778,
+                "XGBoost_recall": 0.9966417910447761,
+                "XGBoost_F1_score": 0.9965174980514665,
+                "XGBoost_F1_classes_score": [
+                    0.997676643433101,
+                    0.9922279792746114,
+                    1.0,
+                    0.99836867862969,
+                    0.6666666666666666,
+                    0.9935483870967742,
+                    0.9955555555555555
+                ],
+                "CatBoost_accuracy": 0.9958955223880597,
+                "CatBoost_precision": 0.9959004961224878,
+                "CatBoost_recall": 0.9958955223880597,
+                "CatBoost_F1_score": 0.9957724114045815,
+                "CatBoost_F1_classes_score": [
+                    0.9972662657189721,
+                    0.9909443725743855,
+                    1.0,
+                    0.9967320261437909,
+                    0.6666666666666666,
+                    0.9913793103448276,
+                    0.9944629014396457
+                ],
+                "LCCDE_accuracy": 0.996455223880597,
+                "LCCDE_precision": 0.9964782680183752,
+                "LCCDE_recall": 0.996455223880597,
+                "LCCDE_F1_score": 0.9963330901747732,
+                "LCCDE_F1_classes_score": [
+                    0.9978142076502732,
+                    0.993514915693904,
+                    0.9655172413793104,
+                    0.9967320261437909,
+                    0.6666666666666666,
+                    0.9935483870967742,
+                    0.9944382647385984
+                ]
+            }
+        },
+        {
+            "rundata": {
+                "name": "run 2",
+                "timestamp": "04/17/2024"
+            },
+            "config": {
+                "dataset": "carHackingDataset_sample_km",
+                "smote": null,
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "boosting_type": "Plain"
+            },
+            "result": {
+                "LightGBM_accuracy": 1.0,
+                "LightGBM_precision": 1.0,
+                "LightGBM_recall": 1.0,
+                "LightGBM_F1_score": 1.0,
+                "LightGBM_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "XGBoost_accuracy": 1.0,
+                "XGBoost_precision": 1.0,
+                "XGBoost_recall": 1.0,
+                "XGBoost_F1_score": 1.0,
+                "XGBoost_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "CatBoost_accuracy": 0.9975669099756691,
+                "CatBoost_precision": 0.9975777237091105,
+                "CatBoost_recall": 0.9975669099756691,
+                "CatBoost_F1_score": 0.9975556361540372,
+                "CatBoost_F1_classes_score": [
+                    0.9977728285077951,
+                    1.0,
+                    0.9885057471264368,
+                    1.0,
+                    1.0
+                ],
+                "LCCDE_accuracy": 1.0,
+                "LCCDE_precision": 1.0,
+                "LCCDE_recall": 1.0,
+                "LCCDE_F1_score": 1.0,
+                "LCCDE_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "rundata": {
+                "name": "Run 3",
+                "timestamp": "04/16/2024"
+            },
+            "config": {
+                "dataset": "CICIDS2017_sample_km",
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "boosting_type": "Plain",
+                "smote": {
+                    "2": 1000,
+                    "4": 1000
+                }
+            },
+            "result": {
+                "LightGBM_accuracy": 0.9973880597014926,
+                "LightGBM_precision": 0.997394613481723,
+                "LightGBM_recall": 0.9973880597014926,
+                "LightGBM_F1_score": 0.9973610106688238,
+                "LightGBM_F1_classes_score": [
+                    0.998223315566489,
+                    0.9909208819714657,
+                    1.0,
+                    0.9991823385118561,
+                    0.8571428571428571,
+                    0.9935483870967742,
+                    0.9977827050997783
+                ],
+                "XGBoost_accuracy": 0.996455223880597,
+                "XGBoost_precision": 0.9964610148115116,
+                "XGBoost_recall": 0.996455223880597,
+                "XGBoost_F1_score": 0.9964263257133991,
+                "XGBoost_F1_classes_score": [
+                    0.9975403115605357,
+                    0.9896103896103896,
+                    1.0,
+                    0.99836867862969,
+                    0.8571428571428571,
+                    0.9913793103448276,
+                    0.9955555555555555
+                ],
+                "CatBoost_accuracy": 0.9960820895522388,
+                "CatBoost_precision": 0.9960867238235995,
+                "CatBoost_recall": 0.9960820895522388,
+                "CatBoost_F1_score": 0.9960182580585294,
+                "CatBoost_F1_classes_score": [
+                    0.9974025974025974,
+                    0.9922279792746114,
+                    1.0,
+                    0.9959183673469387,
+                    0.7692307692307693,
+                    0.9913793103448276,
+                    0.9944629014396457
+                ],
+                "LCCDE_accuracy": 0.9970149253731343,
+                "LCCDE_precision": 0.997021028579935,
+                "LCCDE_recall": 0.9970149253731343,
+                "LCCDE_F1_score": 0.9969879273058918,
+                "LCCDE_F1_classes_score": [
+                    0.9980863860032805,
+                    0.9896373056994818,
+                    1.0,
+                    0.9983660130718954,
+                    0.8571428571428571,
+                    0.9935483870967742,
+                    0.9966703662597114
+                ]
+            }
+        },
+        {
+            "rundata": {
+                "name": "Run 4",
+                "timestamp": "2024-04-16 21:41:33"
+            },
+            "config": {
+                "dataset": "carHackingDataset_sample_km",
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "boosting_type": "Plain",
+                "smote": ""
+            },
+            "result": {
+                "LightGBM_accuracy": 1.0,
+                "LightGBM_precision": 1.0,
+                "LightGBM_recall": 1.0,
+                "LightGBM_F1_score": 1.0,
+                "LightGBM_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "XGBoost_accuracy": 1.0,
+                "XGBoost_precision": 1.0,
+                "XGBoost_recall": 1.0,
+                "XGBoost_F1_score": 1.0,
+                "XGBoost_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "CatBoost_accuracy": 0.9975669099756691,
+                "CatBoost_precision": 0.9975777237091105,
+                "CatBoost_recall": 0.9975669099756691,
+                "CatBoost_F1_score": 0.9975556361540372,
+                "CatBoost_F1_classes_score": [
+                    0.9977728285077951,
+                    1.0,
+                    0.9885057471264368,
+                    1.0,
+                    1.0
+                ],
+                "LCCDE_accuracy": 1.0,
+                "LCCDE_precision": 1.0,
+                "LCCDE_recall": 1.0,
+                "LCCDE_F1_score": 1.0,
+                "LCCDE_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ]
+}

@@ -1,13 +1,13 @@
-import pandas as pd
 import streamlit as st
-import numpy as np
-import sys
 import json
-
+import pandas as pd
+from datetime import datetime
+import sys
 sys.path.append('../IDS-engine')
-import TreeBased #works, just gives error
 import LCCDE
 
+
+#FUNCTIONS---------------------------------------------------------------------------
 def result_to_table1(run):
     if run["config"] != {} and run["config"]["dataset"] == "carHackingDataset_sample_km":
         data = {
@@ -50,113 +50,105 @@ def result_to_table2(run):
     
     return {}
 
-st.title('Intrusion Detection Application')
-run_details = {}
+def runLCCDE(config, rundata, runs):
+    #do timestamp
+    rundata["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result = LCCDE.run(config)
 
-st.header('Model Selection')
-model = st.radio('Choose IDS model:', ['Tree-Based IDS', 'MTH IDS', 'LCCDE IDS'], index=None)
-run_details['model'] = model
+    #save the run
+    runs["runs"].append({
+        "rundata": rundata,
+        "config": config,
+        "result": result
+    })
 
-st.header('Training Parameters')
-train_proportion = st.select_slider(label='Select the training size percentage (Train/Test Split):', options=[f'{val:.0f}%' for val in np.linspace(50, 95, 10)])
-training_parameters = {}
+    json_object = json.dumps(runs, indent=4)
+    with open("runs.json", "w") as outfile:
+        outfile.write(json_object)
+    #st.rerun()
 
-criterion = st.radio('Choose criterion:', ['Gini', 'Entropy'], index=None)
-training_parameters['criterion'] = criterion
-
-lr = st.select_slider(label='Select learning rate:', options=[0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 0.9])
-training_parameters['learning rate'] = lr
-
-run_details['training parameters'] = training_parameters
-
-model_parameters = {}
-if model == 'Tree-Based IDS':
-    st.header('Model Hyperparameters')
-
-elif model == 'MTH IDS':
-    st.header('Model Hyperparameters')
-
-elif model == 'LCCDE IDS':
-    st.header('Model Hyperparameters')
-run_details['model parameters'] = model_parameters
-
-st.header('Dataset')
-dataset = st.radio('Choose Dataset:', ['CICIDS2017_sample_km', "carHackingDataset_sample_km"], index=None)
-#dataset = 'CICIDS2017_sample.csv' if dataset == 'CICIDS2017 Dataset' else None
-run_details['dataset'] = dataset
+#LOGIC CODE------------------------------------------------------------------------------------------
+#get paper results
+paper_runs = {}
+with open('LCCDE_PAPER.json', 'r') as f:
+    paper_runs = json.load(f)
 
 #do the past runs
 runs = {}
 with open('runs.json', 'r') as f:
     runs = json.load(f)
 
-st.header("Past Runs")
-for run in runs["runs"]:
-    if run["config"] and run["config"] != {}:
-        st.header("Model performance comparison for each class in {} dataset".format(run["config"]["dataset"]))
-        st.table(result_to_table1(run))
-        st.header("Performance evaluation of model on {} dataset".format(run["config"]["dataset"]))
-        st.table(result_to_table2(run))
 
-#Tree based details
-def runTreeBased():
-    #data I need
-    config = {
-        "dataset": run_details['dataset'],
-        "features": {
-            #deafult to 1.0, paper uses .9. This value removes features until we only use the top 
-            #"feature-trimming" features in our model
-            "feature_trimming": 1.0
-        },
-        #default to this value, if not using SMOTE have empty dictionary
-        "SMOTE":{
-            #posible key options [0,6]
-            #possible value options- any integer
-            4: 1500
-        },
-        #possible model_type values are ["decision tree", "random forest","extra trees", "XGBoost"]
-        #is list of the model types user want to use, if multiple models it returns the stacking results
-        "model_types": ["decision tree"],
 
-        #only have to give this a value if "XGBoost" is in "model_types"
-        "XGBoost_params":{
-            "n_estimators": 10
-        }
-    }
-    result = TreeBased.run(config)
+config = {}
+rundata = {}
+#STREAMLIT ---------------------------------------------------------------------------------------------------------------
+st.set_page_config(layout="wide")
 
-    #save the run
-    runs["runs"].append({
-        "config": config,
-        "result": result
-    })
-    json_object = json.dumps(runs, indent=4)
-    with open("runs.json", "w") as outfile:
-        outfile.write(json_object)
+col1, col2 = st.columns([1,3])
 
-    st.rerun()
+#left 1/3 of the screen
+with col1:
+    #select past run or new run
+    runOptions = ['New Run']
+    runOptions += ["{} - {} - {}".format(run["rundata"]["name"], run["rundata"]["timestamp"], run["config"]["dataset"]) for run in runs["runs"]]
+    runOptions = {value: index for index, value in enumerate(runOptions)}
+    currentRun = st.selectbox("View Run: ", runOptions.keys())
+    currentRun = runOptions[currentRun]
 
-#Tree based details
-def runLCCDE():
-    #data I need
-    config = {
-        #two options carHackingDataset_sample_km && CICIDS2017_sample_km
-        "dataset": run_details["dataset"],
-        "smote": None #{2:1000,4:1000} for CICIDS2017
-    }
-    result = LCCDE.run(config)
+    # Add a horizontal line
+    st.markdown("<hr>", unsafe_allow_html=True)
 
-    #save the run
-    runs["runs"].append({
-        "config": config,
-        "result": result
-    })
+    #display run parameters
+    if currentRun == 0:
+        rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-    json_object = json.dumps(runs, indent=4)
-    with open("runs.json", "w") as outfile:
-        outfile.write(json_object)
-    st.rerun()
+        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"))
 
-run_button = st.button('Run')
-if run_button:
-    runLCCDE()
+        config["test_data_percent"] = st.slider("Test Data Percent: ", 0.01, .99, 0.2, 0.01)
+
+        config["random_state"] = st.number_input("Random State: ", value=0, step=1)
+
+        config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"))
+
+        config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
+
+        #display run button
+        if st.button("Run"):
+            # Code to run when the button is clicked
+            runLCCDE(config, rundata, runs)
+    else:
+        st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
+
+        st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
+
+        st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True)
+
+        st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True)
+
+        st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
+
+        st.selectbox("Boosting Type: ", [runs["runs"][currentRun - 1]["config"]["boosting_type"]], disabled=True)
+
+        st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
+
+#right 2/3 of the screen
+with col2:
+    if currentRun == 0:
+        st.write("LCCDE Paper Results")
+        left, right = st.columns(2)
+        with left:
+            st.write("CICIDS2017 Dataset Results")
+            st.table(result_to_table1(paper_runs["CICIDS2017"]))
+            st.table(result_to_table2(paper_runs["CICIDS2017"]))
+
+        with right:
+            st.write("Car Hacking Dataset Results")
+            st.table(result_to_table1(paper_runs["CarHacking"]))
+            st.table(result_to_table2(paper_runs["CarHacking"]))
+        st.write("Hit Run to train model and see results")
+    else:
+        st.header("Run Results")
+        st.table(result_to_table1(runs["runs"][currentRun - 1]))
+        st.table(result_to_table2(runs["runs"][currentRun - 1]))
+

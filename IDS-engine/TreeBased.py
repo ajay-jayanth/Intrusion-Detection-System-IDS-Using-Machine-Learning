@@ -14,7 +14,7 @@ from xgboost import plot_importance
 from imblearn.over_sampling import SMOTE
 
 def run(config):
-    df = pd.read_csv('{}/../data/{}'.format(__file__, config['dataset']))
+    df = pd.read_csv('{}/../data/{}.csv'.format(__file__, config['dataset']))
 
     # Min-max normalization
     numeric_features = df.dtypes[df.dtypes != 'object'].index

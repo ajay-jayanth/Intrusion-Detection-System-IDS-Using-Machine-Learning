@@ -1,1 +1,15 @@
 env
+/.vscode
+carHackingDataset.csv 
+carhackingdatasetcreation.ipynb  
+carHackingDataset_km.csv         
+carHackingDataset_sample.csv     
+carHackingDataset_sample_km.csv  
+CICIDS2017_sample.csv 
+CICIDS2017_sample_km.csv         
+DoS_dataset.csv       
+Fuzzy_dataset.csv     
+gear_dataset.csv      
+RPM_dataset.csv
+datasets.zip
+*/catboost_info

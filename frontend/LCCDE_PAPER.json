@@ -1,0 +1,124 @@
+{
+    "CICIDS2017": {
+        "rundata": {
+            "name": "LCCDE PAPER - CICIDS2017 Dataset",
+            "timestamp": "08/05/2022"
+        },
+        "config": {
+            "dataset": "CICIDS2017_sample_km",
+            "smote": null
+        },
+        "result": {
+            "LightGBM_accuracy": 0.99794,
+            "LightGBM_precision": 0.99795,
+            "LightGBM_recall": 0.99794,
+            "LightGBM_F1_score": 0.99792,
+            "LightGBM_F1_classes_score": [
+                0.99863,
+                1.0,
+                0.99889,
+                0.99222,
+                0.99354,
+                1.0,
+                0.85714
+            ],
+            "XGBoost_accuracy": 0.99794,
+            "XGBoost_precision": 0.99795,
+            "XGBoost_recall": 0.99794,
+            "XGBoost_F1_score": 0.99792,
+            "XGBoost_F1_classes_score": [
+                0.99863,
+                1.0,
+                0.99889,
+                0.99351,
+                0.99137,
+                1.0,
+                0.85714
+            ],
+            "CatBoost_accuracy": 0.99683,
+            "CatBoost_precision": 0.99684,
+            "CatBoost_recall": 0.99683,
+            "CatBoost_F1_score": 0.99680,
+            "CatBoost_F1_classes_score": [
+                0.99794,
+                0.99754,
+                0.99557,
+                0.99094,
+                0.99354,
+                1.0,
+                0.85714
+            ],
+            "LCCDE_accuracy": 0.99813,
+            "LCCDE_precision": 0.99814,
+            "LCCDE_recall": 0.99913,
+            "LCCDE_F1_score": 0.99811,
+            "LCCDE_F1_classes_score": [
+                0.99876,
+                1.0,
+                0.99889,
+                0.99351,
+                0.99354,
+                1.0,
+                0.85714
+            ]
+        }
+    },
+
+    "CarHacking":{
+        "rundata": {
+            "name": "LCCDE PAPER - Car Hacking Dataset",
+            "timestamp": "08/05/2022"
+        },
+        "config": {
+            "dataset": "carHackingDataset_sample_km",
+            "smote": null
+        },
+        "result": {
+            "LightGBM_accuracy": 0.999997,
+            "LightGBM_precision": 0.999997,
+            "LightGBM_recall": 0.999997,
+            "LightGBM_F1_score": 0.999997 ,
+            "LightGBM_F1_classes_score": [
+                0.999998,
+                1.0,
+                0.99995 ,
+                1.0,
+                1.0
+            ],
+            "XGBoost_accuracy": 0.999994,
+            "XGBoost_precision": 0.999994,
+            "XGBoost_recall": 0.999994,
+            "XGBoost_F1_score": 0.999994,
+            "XGBoost_F1_classes_score": [
+                0.999996,
+                1.0,
+                0.99990 ,
+                1.0,
+                1.0
+            ],
+            "CatBoost_accuracy": 0.999994,
+            "CatBoost_precision": 0.999994,
+            "CatBoost_recall": 0.999994,
+            "CatBoost_F1_score": 0.999994,
+            "CatBoost_F1_classes_score": [
+                0.999996 ,
+                1.0,
+                0.99990,
+                1.0,
+                1.0
+            ],
+            "LCCDE_accuracy": 0.999997,
+            "LCCDE_precision": 0.999997,
+            "LCCDE_recall": 0.999997,
+            "LCCDE_F1_score": 0.999997,
+            "LCCDE_F1_classes_score": [
+                0.999998 ,
+                1.0,
+                0.99995 ,
+                1.0,
+                1.0
+            ]
+        }
+    }
+
+}
