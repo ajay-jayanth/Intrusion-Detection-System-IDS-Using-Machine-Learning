@@ -153,17 +153,22 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-        config["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type")
+        rundata["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type")
 
-        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"), key="dataset")
-        
-        config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent if "test_data_percent" in st.session_state else .2), step=0.01, key="test_data_percent")
+        if rundata["model_type"] == "LCCDE":
+            config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"), key="dataset")
+            
+            config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent if "test_data_percent" in st.session_state else .2), step=0.01, key="test_data_percent")
 
-        config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state")
+            config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state")
 
-        config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"), key="boosting_type")
+            config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"), key="boosting_type")
 
-        config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
+            config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
+        elif rundata["model_type"] == "MTH":
+            st.write("test for MTH")
+        elif rundata["model_type"] == "Tree Based":
+            st.write("test for tree based")
 
         #display run button
         if st.button("Run"):
@@ -174,21 +179,25 @@ with col1:
 
     else:
         st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
+        
+        st.selectbox('Model Type: ', ["{}".format(runs["runs"][currentRun - 1]["rundata"]["model_type"])], disabled=True)
 
-        st.selectbox('Model Type: ', ["{}".format(runs["runs"][currentRun - 1]["config"]["model_type"])], disabled=True)
+        if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
+            st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
 
-        st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
+            st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True)
 
-        st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True)
+            st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True)
 
-        st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True)
+            st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
 
-        st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
+            st.selectbox("Boosting Type: ", [runs["runs"][currentRun - 1]["config"]["boosting_type"]], disabled=True)
 
-        st.selectbox("Boosting Type: ", [runs["runs"][currentRun - 1]["config"]["boosting_type"]], disabled=True)
-
-        st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
-
+            st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
+        elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
+            st.write("test for MTH")
+        elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
+            st.write("test for tree based")
 
         left, right = st.columns(2)
         with left:
@@ -209,7 +218,7 @@ with col1:
             if st.button("Copy Run"):
                 # Code to run when the button is clicked
                 st.session_state.copied_parameters = {
-                    "model_type": runs["runs"][currentRun - 1]["config"]["model_type"],
+                    "model_type": runs["runs"][currentRun - 1]["rundata"]["model_type"],
                     "dataset": runs["runs"][currentRun - 1]["config"]["dataset"],
                     "test_data_percent": runs["runs"][currentRun - 1]["config"]["test_data_percent"],
                     "random_state": runs["runs"][currentRun - 1]["config"]["random_state"],
