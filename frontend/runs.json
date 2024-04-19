@@ -198,65 +198,6 @@
                     0.9971671388101983
                 ]
             }
-        },
-        {
-            "rundata": {
-                "name": "Run 4",
-                "timestamp": "2024-04-19 10:38:37"
-            },
-            "config": {
-                "dataset": "carHackingDataset_sample_km",
-                "test_data_percent": 0.3,
-                "random_state": 5,
-                "boosting_type": "Ordered",
-                "smote": ""
-            },
-            "result": {
-                "LightGBM_accuracy": 0.9999740546150353,
-                "LightGBM_precision": 0.9999740558417676,
-                "LightGBM_recall": 0.9999740546150353,
-                "LightGBM_F1_score": 0.9999740531576935,
-                "LightGBM_F1_classes_score": [
-                    0.9999763587791674,
-                    1.0,
-                    0.9998640195811803,
-                    1.0,
-                    1.0
-                ],
-                "XGBoost_accuracy": 0.9999740546150353,
-                "XGBoost_precision": 0.9999740558417676,
-                "XGBoost_recall": 0.9999740546150353,
-                "XGBoost_F1_score": 0.9999740531576935,
-                "XGBoost_F1_classes_score": [
-                    0.9999763587791674,
-                    1.0,
-                    0.9998640195811803,
-                    1.0,
-                    1.0
-                ],
-                "CatBoost_accuracy": 0.9999740546150353,
-                "CatBoost_precision": 0.9999740558417676,
-                "CatBoost_recall": 0.9999740546150353,
-                "CatBoost_F1_score": 0.9999740531576935,
-                "CatBoost_F1_classes_score": [
-                    0.9999763587791674,
-                    1.0,
-                    0.9998640195811803,
-                    1.0,
-                    1.0
-                ],
-                "LCCDE_accuracy": 0.9999740546150353,
-                "LCCDE_precision": 0.9999740558417676,
-                "LCCDE_recall": 0.9999740546150353,
-                "LCCDE_F1_score": 0.9999740531576935,
-                "LCCDE_F1_classes_score": [
-                    0.9999763587791674,
-                    1.0,
-                    0.9998640195811803,
-                    1.0,
-                    1.0
-                ]
-            }
         }
     ]
 }

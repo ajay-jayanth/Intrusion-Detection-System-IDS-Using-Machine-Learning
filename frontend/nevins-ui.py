@@ -82,6 +82,12 @@ with open('runs.json', 'r') as f:
 
 config = {}
 rundata = {}
+
+if 'copy_parameters' not in st.session_state:
+    st.session_state.copy_parameters = False
+
+if 'delete_run' not in st.session_state:
+    st.session_state.delete_run = False
 #STREAMLIT ---------------------------------------------------------------------------------------------------------------
 st.set_page_config(layout="wide") #make page wide
 
@@ -117,14 +123,28 @@ col1, col2 = st.columns([1,3])
 
 #left 1/3 of the screen
 with col1:
+    #testing
+    if st.session_state.copy_parameters:
+        st.session_state.current_run = 'New Run'
+        st.session_state.dataset = st.session_state.copied_parameters["dataset"]
+        st.session_state.test_data_percent = st.session_state.copied_parameters["test_data_percent"]
+        st.session_state.random_state = st.session_state.copied_parameters["random_state"]
+        st.session_state.boosting_type = st.session_state.copied_parameters["boosting_type"]
+        #st.session_state.smote = st.session_state.copied_parameters["smote"]
+    st.session_state.copy_parameters = False
+
+    if st.session_state.delete_run:
+        st.session_state.current_run = "New Run"
+    st.session_state.delete_run = False
+    #end testing
+
     st.header("Run Configuration")
     #select past run or new run
     runOptions = ['New Run']
     runOptions += ["{} - {} - {}".format(run["rundata"]["name"], run["rundata"]["timestamp"], run["config"]["dataset"]) for run in runs["runs"]]
     runOptions = {value: index for index, value in enumerate(runOptions)}
-    currentRun = st.selectbox("View Run: ", runOptions.keys())
+    currentRun = st.selectbox("View Run: ", runOptions.keys(),index = 0, key="current_run")
     currentRun = runOptions[currentRun]
-
     # Add a horizontal line
     st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -132,13 +152,13 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"))
+        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"), key="dataset")
         
-        config["test_data_percent"] = st.slider("Test Data Percent: ", 0.01, .99, 0.2, 0.01)
+        config["test_data_percent"] = st.slider("Test Data Percent: ", 0.01, .99, 0.2, 0.01, key="test_data_percent")
 
-        config["random_state"] = st.number_input("Random State: ", value=0, step=1)
+        config["random_state"] = st.number_input("Random State: ", value=0, step=1, key="random_state")
 
-        config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"))
+        config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"), key="boosting_type")
 
         config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
 
@@ -164,15 +184,35 @@ with col1:
 
         st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
 
-        #display run button
-        if st.button("Delete Run"):
-            # Code to run when the button is clicked
-            runs["runs"].pop(currentRun - 1)
 
-            json_object = json.dumps(runs, indent=4)
-            with open("runs.json", "w") as outfile:
-                outfile.write(json_object)
-            st.rerun()
+        left, right = st.columns(2)
+        with left:
+            #display delete button
+            if st.button("Delete Run"):
+                # Code to run when the button is clicked
+                runs["runs"].pop(currentRun - 1)
+
+                json_object = json.dumps(runs, indent=4)
+                with open("runs.json", "w") as outfile:
+                    outfile.write(json_object)
+
+                st.session_state.delete_run = True
+                st.rerun()
+        
+        with right:
+            #display copy run button
+            if st.button("Copy Run"):
+                # Code to run when the button is clicked
+                st.session_state.copied_parameters = {
+                    "dataset": runs["runs"][currentRun - 1]["config"]["dataset"],
+                    "test_data_percent": runs["runs"][currentRun - 1]["config"]["test_data_percent"],
+                    "random_state": runs["runs"][currentRun - 1]["config"]["random_state"],
+                    "boosting_type": runs["runs"][currentRun - 1]["config"]["boosting_type"],
+                    "smote": runs["runs"][currentRun - 1]["config"]["smote"]
+                }
+
+                st.session_state.copy_parameters = True
+                st.rerun()
 
 #right 2/3 of the screen
 with col2:
@@ -190,6 +230,24 @@ with col2:
             st.table(result_to_table2(paper_runs["CarHacking"]))
     else:
         st.header("Run Results")
-        st.table(result_to_table1(runs["runs"][currentRun - 1]))
-        st.table(result_to_table2(runs["runs"][currentRun - 1]))
+        compareOptions = ['None']
+        compareOptions += ["{} - {} - {}".format(run["rundata"]["name"], run["rundata"]["timestamp"], run["config"]["dataset"]) for run in runs["runs"]]
+        compareOptions = {value: index for index, value in enumerate(compareOptions)}
+        compareRun = st.selectbox("Compare Run With: ", compareOptions.keys(),index = 0)
+        compareRun = compareOptions[compareRun]
+
+        if compareRun == 0:
+            st.write(list(compareOptions.keys())[currentRun])
+            st.table(result_to_table1(runs["runs"][currentRun - 1]))
+            st.table(result_to_table2(runs["runs"][currentRun - 1]))
+        else:
+            left, right = st.columns(2)
+            with left:
+                st.write(list(compareOptions.keys())[currentRun])
+                st.table(result_to_table1(runs["runs"][currentRun - 1]))
+                st.table(result_to_table2(runs["runs"][currentRun - 1]))
+            with right:
+                st.write(list(compareOptions.keys())[compareRun])
+                st.table(result_to_table1(runs["runs"][compareRun - 1]))
+                st.table(result_to_table2(runs["runs"][compareRun - 1]))
 
