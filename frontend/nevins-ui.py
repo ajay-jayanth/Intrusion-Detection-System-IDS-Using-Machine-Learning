@@ -83,12 +83,41 @@ with open('runs.json', 'r') as f:
 config = {}
 rundata = {}
 #STREAMLIT ---------------------------------------------------------------------------------------------------------------
-st.set_page_config(layout="wide")
+st.set_page_config(layout="wide") #make page wide
+
+#get rid of streamlit header bar
+st.markdown("""
+    <style>
+        .reportview-container {
+            margin-top: -2em;
+        }
+        .block-container {
+            padding-top: .5em;
+        }
+        header{
+            visibility: hidden;
+        }
+        h2{
+            margin-top: 0;
+            padding-top: 0;
+        }
+        hr{
+            height: 2px;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        #MainMenu {visibility: hidden;}
+        .stDeployButton {display:none;}
+        footer {visibility: hidden;}
+        #stDecoration {display:none;}
+    </style>
+""", unsafe_allow_html=True)
 
 col1, col2 = st.columns([1,3])
 
 #left 1/3 of the screen
 with col1:
+    st.header("Run Configuration")
     #select past run or new run
     runOptions = ['New Run']
     runOptions += ["{} - {} - {}".format(run["rundata"]["name"], run["rundata"]["timestamp"], run["config"]["dataset"]) for run in runs["runs"]]
@@ -116,7 +145,8 @@ with col1:
         #display run button
         if st.button("Run"):
             # Code to run when the button is clicked
-            runLCCDE(config, rundata, runs)
+            with st.spinner("Training Model..."):
+                runLCCDE(config, rundata, runs)
     else:
         st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
 
@@ -135,7 +165,7 @@ with col1:
 #right 2/3 of the screen
 with col2:
     if currentRun == 0:
-        st.write("LCCDE Paper Results")
+        st.header("LCCDE Paper Results")
         left, right = st.columns(2)
         with left:
             st.write("CICIDS2017 Dataset Results")
@@ -146,7 +176,6 @@ with col2:
             st.write("Car Hacking Dataset Results")
             st.table(result_to_table1(paper_runs["CarHacking"]))
             st.table(result_to_table2(paper_runs["CarHacking"]))
-        st.write("Hit Run to train model and see results")
     else:
         st.header("Run Results")
         st.table(result_to_table1(runs["runs"][currentRun - 1]))

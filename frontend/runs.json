@@ -254,6 +254,135 @@
                     1.0
                 ]
             }
+        },
+        {
+            "rundata": {
+                "name": "Run 5",
+                "timestamp": "2024-04-16 23:06:24"
+            },
+            "config": {
+                "dataset": "carHackingDataset_sample_km",
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "boosting_type": "Plain",
+                "smote": ""
+            },
+            "result": {
+                "LightGBM_accuracy": 1.0,
+                "LightGBM_precision": 1.0,
+                "LightGBM_recall": 1.0,
+                "LightGBM_F1_score": 1.0,
+                "LightGBM_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "XGBoost_accuracy": 0.9999416228838295,
+                "XGBoost_precision": 0.9999416290626099,
+                "XGBoost_recall": 0.9999416228838295,
+                "XGBoost_F1_score": 0.9999416153610208,
+                "XGBoost_F1_classes_score": [
+                    0.9999470759460175,
+                    1.0,
+                    0.9996893445169307,
+                    1.0,
+                    1.0
+                ],
+                "CatBoost_accuracy": 1.0,
+                "CatBoost_precision": 1.0,
+                "CatBoost_recall": 1.0,
+                "CatBoost_F1_score": 1.0,
+                "CatBoost_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "LCCDE_accuracy": 1.0,
+                "LCCDE_precision": 1.0,
+                "LCCDE_recall": 1.0,
+                "LCCDE_F1_score": 1.0,
+                "LCCDE_F1_classes_score": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "rundata": {
+                "name": "Run 6",
+                "timestamp": "2024-04-18 20:11:24"
+            },
+            "config": {
+                "dataset": "CICIDS2017_sample_km",
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "boosting_type": "Plain",
+                "smote": {
+                    "2": 1000,
+                    "4": 1000
+                }
+            },
+            "result": {
+                "LightGBM_accuracy": 0.9972014925373134,
+                "LightGBM_precision": 0.9972090532804683,
+                "LightGBM_recall": 0.9972014925373134,
+                "LightGBM_F1_score": 0.9971757958460199,
+                "LightGBM_F1_classes_score": [
+                    0.9980863860032805,
+                    0.9909443725743855,
+                    1.0,
+                    0.9983633387888707,
+                    0.8571428571428571,
+                    0.9935483870967742,
+                    0.9977827050997783
+                ],
+                "XGBoost_accuracy": 0.9968283582089552,
+                "XGBoost_precision": 0.9968320103268312,
+                "XGBoost_recall": 0.9968283582089552,
+                "XGBoost_F1_score": 0.9968008241553772,
+                "XGBoost_F1_classes_score": [
+                    0.9979494190020506,
+                    0.9909208819714657,
+                    1.0,
+                    0.99836867862969,
+                    0.8571428571428571,
+                    0.9913793103448276,
+                    0.9955654101995566
+                ],
+                "CatBoost_accuracy": 0.9958955223880597,
+                "CatBoost_precision": 0.9959008434229953,
+                "CatBoost_recall": 0.9958955223880597,
+                "CatBoost_F1_score": 0.9958314986951645,
+                "CatBoost_F1_classes_score": [
+                    0.9974025974025974,
+                    0.9922279792746114,
+                    1.0,
+                    0.9951060358890701,
+                    0.7692307692307693,
+                    0.9913793103448276,
+                    0.9933481152993349
+                ],
+                "LCCDE_accuracy": 0.9968283582089552,
+                "LCCDE_precision": 0.996836605213166,
+                "LCCDE_recall": 0.9968283582089552,
+                "LCCDE_F1_score": 0.9968029244785732,
+                "LCCDE_F1_classes_score": [
+                    0.9979494190020506,
+                    0.9896640826873385,
+                    1.0,
+                    0.9975470155355682,
+                    0.8571428571428571,
+                    0.9935483870967742,
+                    0.9966703662597114
+                ]
+            }
         }
     ]
 }
