@@ -1,1 +1,1 @@
-{"model": "Tree-Based IDS", "training parameters": {"criterion": null, "learning rate": 0.01}, "model parameters": {}, "dataset": "CICIDS2017_sample.csv"}
+{"model": null, "training parameters": {"criterion": null, "learning rate": 0.01}, "model parameters": {}, "dataset": null}

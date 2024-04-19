@@ -132,8 +132,8 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"))
-
+        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km", 'CICIDS2017_sample'))
+        
         config["test_data_percent"] = st.slider("Test Data Percent: ", 0.01, .99, 0.2, 0.01)
 
         config["random_state"] = st.number_input("Random State: ", value=0, step=1)
