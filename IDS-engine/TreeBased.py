@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import os
+import json
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder 
 from sklearn.model_selection import train_test_split
@@ -12,6 +13,27 @@ from sklearn.tree import DecisionTreeClassifier
 import xgboost as xgb
 from xgboost import plot_importance
 from imblearn.over_sampling import SMOTE
+
+#data I need
+# config = {
+#     "dataset": "CICIDS2017_sample",
+
+#     #deafult to 1.0, paper uses .9. This value removes features until we only use the top 
+#     "feature_trimming": .9,
+
+#     #default to this value, if not using SMOTE have empty dictionary
+#     "smote":{
+#         #posible key options [0,6]
+#         #possible value options- any integer
+#         4: 1500
+#     },
+#     #possible model_type values are ["decision tree", "random forest","extra trees", "XGBoost"]
+#     #is list of the model types user want to use, if multiple models it returns the stacking results
+#     "model_types": ["XGBoost"],
+
+#     #only have to give this a value if "XGBoost" is in "model_types"
+#     "XGBoost_n_estimators": 10 #10 is deafult, user can pick any integer
+# }
 
 def run(config):
     df = pd.read_csv('{}/../data/{}.csv'.format(__file__, config['dataset']))
@@ -34,8 +56,10 @@ def run(config):
     y_test=y_test.astype('int') #have to add this line for stuff to work
 
     #oversample if in config
-    if config['SMOTE'] is not None and config['SMOTE']:
-        smote=SMOTE(n_jobs=-1,sampling_strategy={4:1500}) # Create 1500 samples for the minority class "4"
+    if config['smote'] is not None and config['smote']:
+        config["smote"]  = json.loads(config["smote"], parse_int=int)
+        config["smote"] = {int(key): value for key, value in config["smote"].items()}
+        smote=SMOTE(n_jobs=-1,sampling_strategy=config["smote"]) # Create 1500 samples for the minority class "4"
         X_train, y_train = smote.fit_resample(X_train, y_train)
 
     def train_models():
@@ -120,7 +144,7 @@ def run(config):
                 if model_type not in model_results:
                     model_results[model_type] = {}
                 # XGboost training and prediction
-                xg = xgb.XGBClassifier(n_estimators = config['XGBoost_params']['n_estimators'])
+                xg = xgb.XGBClassifier(n_estimators = config['XGBoost_n_estimators'])
                 xg.fit(X_train,y_train)
                 xg_score=xg.score(X_test,y_test)
                 y_predict=xg.predict(X_test)
@@ -132,7 +156,7 @@ def run(config):
                 model_results[model_type]['precision'] = precision
                 model_results[model_type]['recall'] = recall
                 model_results[model_type]['F1_score'] = fscore
-                model_results[model_type]['classification_report'] = classification_report(y_true,y_predict)
+                #model_results[model_type]['classification_report'] = classification_report(y_true,y_predict)
 
                 model_results[model_type]['train']=xg.predict(X_train)
                 model_results[model_type]['test']=xg.predict(X_test)
@@ -145,7 +169,7 @@ def run(config):
     model_results = train_models()
 
     #do feature selection and retrain models if necessary
-    if config['features']['feature_trimming'] < 1.0:
+    if config['feature_trimming'] < 1.0:
         avg_feature = [model_results[model]['model'].feature_importances_ for model in model_results.keys()]
         avg_feature = sum(avg_feature) / len(avg_feature)
 
@@ -157,7 +181,7 @@ def run(config):
         for i in range(0, len(f_list)):
             Sum = Sum + f_list[i][0]
             fs.append(f_list[i][1])
-            if Sum>=config['features']['feature_trimming']:
+            if Sum>=config['feature_trimming']:
                 break  
 
         X_fs = df[fs].values
@@ -167,8 +191,8 @@ def run(config):
         y_test=y_test.astype('int') #have to add this line for stuff to work
 
         #oversample if in config
-        if config['SMOTE'] is not None and config['SMOTE']:
-            smote=SMOTE(n_jobs=-1,sampling_strategy={4:1500}) # Create 1500 samples for the minority class "4"
+        if(config["smote"] != None and config["smote"] != ""):
+            smote=SMOTE(n_jobs=-1,sampling_strategy=config["smote"]) # Create 1500 samples for the minority class "4"
             X_train, y_train = smote.fit_resample(X_train, y_train)
         
         #retrain models
@@ -200,7 +224,7 @@ def run(config):
         model_results['stacking']['precision'] = precision
         model_results['stacking']['recall'] = recall
         model_results['stacking']['F1_score'] = fscore
-        model_results['stacking']['classification_report'] = classification_report(y_true,y_predict)
+        #model_results['stacking']['classification_report'] = classification_report(y_true,y_predict)
 
         # model_results['stacking']['train']=stk.predict(X_train)
         # model_results['stacking']['test']=stk.predict(X_test)
@@ -209,37 +233,31 @@ def run(config):
         feature=(df.drop(['Label'],axis=1)).columns.values
         model_results['stacking']['top_three_features'] = sorted(zip(map(lambda x: round(x, 4), stk.feature_importances_), feature), reverse=True)[:3]
         
-    #populate and return results
+    #populate and return resultss
     result = {
-        "accuracy": "",
-        "precision": "", 
-        "recall": "",
-        "F1_score": "",
-        "classification_report": "",
-        "top_three_features": {
-            "overall": [],
-            "Dos": [],
-            "port_scan": [],
-            "brutue_force": [],
-            "web_attack": [],
-            "botnet": [],
-            "infiltration": []
-        }
-    }
-    if len(config['model_types']) > 1:
-        result['accuracy'] = model_results['stacking']['accuracy']
-        result['precision'] = model_results['stacking']['precision']
-        result['recall'] = model_results['stacking']['recall']
-        result['F1_score'] = model_results['stacking']['F1_score']
-        result['classification_report'] = model_results['stacking']['classification_report']
-        result['top_three_features'] = model_results['stacking']['top_three_features']
-    else:
-        model_type = config['model_types'][0]
+        "decision_tree_accuracy": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None,
+        "decision_tree_precision": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None, 
+        "decision_tree_recall": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None,
+        "decision_tree_F1_score": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None,
 
-        result['accuracy'] = model_results[model_type]['accuracy']
-        result['precision'] = model_results[model_type]['precision']
-        result['recall'] = model_results[model_type]['recall']
-        result['F1_score'] = model_results[model_type]['F1_score']
-        result['classification_report'] = model_results[model_type]['classification_report']
-        result['top_three_features'] = model_results[model_type]['top_three_features']
+        "random_forest_accuracy": model_results['random forest']['accuracy'] if 'random forest' in model_results else None,
+        "random_forest_precision": model_results['random forest']['accuracy'] if 'random forest' in model_results else None, 
+        "random_forest_recall": model_results['random forest']['accuracy'] if 'random forest' in model_results else None,
+        "random_forest_F1_score": model_results['random forest']['accuracy'] if 'random forest' in model_results else None,
+
+        "extra_trees_accuracy": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None,
+        "extra_trees_precision": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None, 
+        "extra_trees_recall": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None,
+        "extra_trees_F1_score": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None,
+
+        "XGBoost_accuracy": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None,
+        "XGBoost_precision": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None, 
+        "XGBoost_recall": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None,
+        "XGBoost_F1_score": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None,
+
+        "stacking_accuracy": model_results['stacking']['accuracy'] if 'stacking' in model_results else None,
+        "stacking_precision": model_results['stacking']['accuracy'] if 'stacking' in model_results else None, 
+        "stacking_recall": model_results['stacking']['accuracy'] if 'stacking' in model_results else None,
+        "stacking_F1_score": model_results['stacking']['accuracy'] if 'stacking' in model_results else None,
+    }
     return result

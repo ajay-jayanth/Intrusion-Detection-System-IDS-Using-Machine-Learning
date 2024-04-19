@@ -5,10 +5,11 @@ from datetime import datetime
 import sys
 sys.path.append('../IDS-engine')
 import LCCDE
+import TreeBased
 
 
 #FUNCTIONS---------------------------------------------------------------------------
-def result_to_table1(run):
+def result_to_table1_LCCDE(run):
     if run["config"] != {} and run["config"]["dataset"] == "carHackingDataset_sample_km":
         data = {
             "Method": ["LightGBM", "XGBoost", "CatBoost", "Proposed LCCDE"],
@@ -36,14 +37,28 @@ def result_to_table1(run):
     
     return {}
 
-def result_to_table2(run):
+def result_to_table2_LCCDE(run):
     if run["config"] != {}:
         data = {
             "Method": ["LightGBM", "XGBoost", "CatBoost", "Proposed LCCDE"],
-            "Accuracy (%)": [run["result"]["LightGBM_accuracy"], run["result"]["LightGBM_precision"], run["result"]["LightGBM_recall"], run["result"]["LightGBM_F1_score"]],
-            "Precision (%)": [run["result"]["LightGBM_accuracy"], run["result"]["LightGBM_precision"], run["result"]["LightGBM_recall"], run["result"]["LightGBM_F1_score"]],
-            "Recall (%)": [run["result"]["LightGBM_accuracy"], run["result"]["LightGBM_precision"], run["result"]["LightGBM_recall"], run["result"]["LightGBM_F1_score"]],
-            "F1 (%)": [run["result"]["LightGBM_accuracy"], run["result"]["LightGBM_precision"], run["result"]["LightGBM_recall"], run["result"]["LightGBM_F1_score"]],
+            "Accuracy (%)": [run["result"]["LightGBM_accuracy"], run["result"]["XGBoost_accuracy"], run["result"]["CatBoost_accuracy"], run["result"]["LCCDE_accuracy"]],
+            "Precision (%)": [run["result"]["LightGBM_precision"], run["result"]["XGBoost_precision"], run["result"]["CatBoost_precision"], run["result"]["LCCDE_precision"]],
+            "Recall (%)": [run["result"]["LightGBM_recall"], run["result"]["XGBoost_recall"], run["result"]["CatBoost_recall"], run["result"]["LCCDE_recall"]],
+            "F1 (%)": [run["result"]["LightGBM_F1_score"], run["result"]["XGBoost_F1_score"], run["result"]["CatBoost_F1_score"], run["result"]["LCCDE_F1_score"]],
+        }
+
+        return pd.DataFrame(data)
+    
+    return {}
+
+def result_to_table1_TreeBased(run):
+    if run["config"] != {}:
+        data = {
+            "Method": ["Decision Tree", "Random Forest", "Extra Trees", "XGBoost", "Stacking"],
+            "Accuracy (%)": [run["result"]["decision_tree_accuracy"], run["result"]["random_forest_accuracy"], run["result"]["extra_trees_accuracy"], run["result"]["XGBoost_accuracy"], run["result"]["stacking_accuracy"]],
+            "Precision (%)": [run["result"]["decision_tree_precision"], run["result"]["random_forest_precision"], run["result"]["extra_trees_precision"], run["result"]["XGBoost_precision"], run["result"]["stacking_precision"]],
+            "Recall (%)": [run["result"]["decision_tree_recall"], run["result"]["random_forest_recall"], run["result"]["extra_trees_recall"], run["result"]["XGBoost_recall"], run["result"]["stacking_recall"]],
+            "F1 (%)": [run["result"]["decision_tree_F1_score"], run["result"]["random_forest_F1_score"], run["result"]["extra_trees_F1_score"], run["result"]["XGBoost_F1_score"], run["result"]["stacking_F1_score"]],
         }
 
         return pd.DataFrame(data)
@@ -65,7 +80,22 @@ def runLCCDE(config, rundata, runs):
     json_object = json.dumps(runs, indent=4)
     with open("runs.json", "w") as outfile:
         outfile.write(json_object)
-    #st.rerun()
+
+def runTreeBased(config, rundata, runs):
+    #do timestamp
+    rundata["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    result = TreeBased.run(config)
+
+    #save the run
+    runs["runs"].append({
+        "rundata": rundata,
+        "config": config,
+        "result": result
+    })
+
+    json_object = json.dumps(runs, indent=4)
+    with open("runs.json", "w") as outfile:
+        outfile.write(json_object)
 
 #LOGIC CODE------------------------------------------------------------------------------------------
 #get paper results
@@ -168,14 +198,33 @@ with col1:
         elif rundata["model_type"] == "MTH":
             st.write("test for MTH")
         elif rundata["model_type"] == "Tree Based":
-            st.write("test for tree based")
+            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample", "CICIDS2017", "CANIntrusion_sample", "CANIntrusion"), key="dataset_TreeBased")
+            
+            config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent_TreeBased if "test_data_percent_TreeBased" in st.session_state else .2), step=0.01, key="test_data_percent_TreeBased")
+
+            config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state_TreeBased")
+
+            config["feature_trimming"] = st.slider("Feature Trimming: ", min_value=0.01, max_value=.99,value=(st.session_state.feature_trimming_TreeBased if "feature_trimming_TreeBased" in st.session_state else .9), step=0.01, key="feature_trimming_TreeBased")
+
+            config["model_types"] = st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default=["decision tree", "random forest","extra trees", "XGBoost"], key="model_types_TreeBased")
+
+            config["XGBoost_n_estimators"] = st.number_input("XGBoost n estimators: ", min_value=1, value=10, step=1, key="xgboost_n_estimators")
+            
+            config["smote"] = st.text_input('SMOTE (optional): ', '{"4":1500}' if config["dataset"] == "CICIDS2017" or config["dataset"] == "CICIDS2017_sample" else "")
 
         #display run button
         if st.button("Run"):
             # Code to run when the button is clicked
             with st.spinner("Training Model..."):
-                runLCCDE(config, rundata, runs)
-                st.rerun()
+                if rundata["model_type"] == "LCCDE":
+                    runLCCDE(config, rundata, runs)
+                    st.rerun()
+                elif rundata["model_type"] == "MTH":
+                    # runLCCDE(config, rundata, runs)
+                    st.rerun()
+                elif rundata["model_type"] == "Tree Based":
+                    runTreeBased(config, rundata, runs)
+                    st.rerun()
 
     else:
         st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
@@ -197,7 +246,21 @@ with col1:
         elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
             st.write("test for MTH")
         elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
-            st.write("test for tree based")
+            st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
+
+            st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True)
+
+            st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True)
+
+            st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
+
+            st.slider("Feature Trimming: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["feature_trimming"], 0.01, disabled=True)
+
+            st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default= runs["runs"][currentRun - 1]["config"]["model_types"], disabled=True)
+
+            st.number_input("XGBoost n estimators: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["XGBoost_n_estimators"], step=1, disabled=True)
+            
+            st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
 
         left, right = st.columns(2)
         with left:
@@ -236,13 +299,13 @@ with col2:
         left, right = st.columns(2)
         with left:
             st.write("CICIDS2017 Dataset Results")
-            st.table(result_to_table1(paper_runs["CICIDS2017"]))
-            st.table(result_to_table2(paper_runs["CICIDS2017"]))
+            st.table(result_to_table1_LCCDE(paper_runs["CICIDS2017"]))
+            st.table(result_to_table2_LCCDE(paper_runs["CICIDS2017"]))
 
         with right:
             st.write("Car Hacking Dataset Results")
-            st.table(result_to_table1(paper_runs["CarHacking"]))
-            st.table(result_to_table2(paper_runs["CarHacking"]))
+            st.table(result_to_table1_LCCDE(paper_runs["CarHacking"]))
+            st.table(result_to_table2_LCCDE(paper_runs["CarHacking"]))
     else:
         st.header("Run Results")
         compareOptions = ['None']
@@ -253,16 +316,31 @@ with col2:
 
         if compareRun == 0:
             st.write(list(compareOptions.keys())[currentRun])
-            st.table(result_to_table1(runs["runs"][currentRun - 1]))
-            st.table(result_to_table2(runs["runs"][currentRun - 1]))
+            if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
+                st.table(result_to_table1_LCCDE(runs["runs"][currentRun - 1]))
+                st.table(result_to_table2_LCCDE(runs["runs"][currentRun - 1]))
+            elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
+                pass
+            elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
+                st.table(result_to_table1_TreeBased(runs["runs"][currentRun - 1]))
         else:
             left, right = st.columns(2)
             with left:
                 st.write(list(compareOptions.keys())[currentRun])
-                st.table(result_to_table1(runs["runs"][currentRun - 1]))
-                st.table(result_to_table2(runs["runs"][currentRun - 1]))
+                if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
+                    st.table(result_to_table1_LCCDE(runs["runs"][currentRun - 1]))
+                    st.table(result_to_table2_LCCDE(runs["runs"][currentRun - 1]))
+                elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
+                    pass
+                elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
+                    st.table(result_to_table1_TreeBased(runs["runs"][currentRun - 1]))
             with right:
                 st.write(list(compareOptions.keys())[compareRun])
-                st.table(result_to_table1(runs["runs"][compareRun - 1]))
-                st.table(result_to_table2(runs["runs"][compareRun - 1]))
+                if runs["runs"][compareRun - 1]["rundata"]["model_type"] == "LCCDE":
+                    st.table(result_to_table1_LCCDE(runs["runs"][compareRun - 1]))
+                    st.table(result_to_table2_LCCDE(runs["runs"][compareRun - 1]))
+                elif runs["runs"][compareRun - 1]["rundata"]["model_type"] == "MTH":
+                    pass
+                elif runs["runs"][compareRun - 1]["rundata"]["model_type"] == "Tree Based":
+                    st.table(result_to_table1_TreeBased(runs["runs"][compareRun - 1]))
 
