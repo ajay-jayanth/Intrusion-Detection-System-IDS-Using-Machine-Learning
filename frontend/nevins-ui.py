@@ -126,6 +126,7 @@ with col1:
     #testing
     if st.session_state.copy_parameters:
         st.session_state.current_run = 'New Run'
+        st.session_state.model_type = st.session_state.copied_parameters["model_type"]
         st.session_state.dataset = st.session_state.copied_parameters["dataset"]
         st.session_state.test_data_percent = st.session_state.copied_parameters["test_data_percent"]
         st.session_state.random_state = st.session_state.copied_parameters["random_state"]
@@ -152,11 +153,13 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
+        config["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type")
+
         config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"), key="dataset")
         
-        config["test_data_percent"] = st.slider("Test Data Percent: ", 0.01, .99, 0.2, 0.01, key="test_data_percent")
+        config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent if "test_data_percent" in st.session_state else .2), step=0.01, key="test_data_percent")
 
-        config["random_state"] = st.number_input("Random State: ", value=0, step=1, key="random_state")
+        config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state")
 
         config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"), key="boosting_type")
 
@@ -171,6 +174,8 @@ with col1:
 
     else:
         st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
+
+        st.selectbox('Model Type: ', ["{}".format(runs["runs"][currentRun - 1]["config"]["model_type"])], disabled=True)
 
         st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
 
@@ -204,6 +209,7 @@ with col1:
             if st.button("Copy Run"):
                 # Code to run when the button is clicked
                 st.session_state.copied_parameters = {
+                    "model_type": runs["runs"][currentRun - 1]["config"]["model_type"],
                     "dataset": runs["runs"][currentRun - 1]["config"]["dataset"],
                     "test_data_percent": runs["runs"][currentRun - 1]["config"]["test_data_percent"],
                     "random_state": runs["runs"][currentRun - 1]["config"]["random_state"],
