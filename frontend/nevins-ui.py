@@ -132,7 +132,7 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km", 'CICIDS2017_sample'))
+        config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"))
         
         config["test_data_percent"] = st.slider("Test Data Percent: ", 0.01, .99, 0.2, 0.01)
 
@@ -147,6 +147,8 @@ with col1:
             # Code to run when the button is clicked
             with st.spinner("Training Model..."):
                 runLCCDE(config, rundata, runs)
+                st.rerun()
+
     else:
         st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
 
@@ -161,6 +163,16 @@ with col1:
         st.selectbox("Boosting Type: ", [runs["runs"][currentRun - 1]["config"]["boosting_type"]], disabled=True)
 
         st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
+
+        #display run button
+        if st.button("Delete Run"):
+            # Code to run when the button is clicked
+            runs["runs"].pop(currentRun - 1)
+
+            json_object = json.dumps(runs, indent=4)
+            with open("runs.json", "w") as outfile:
+                outfile.write(json_object)
+            st.rerun()
 
 #right 2/3 of the screen
 with col2:
