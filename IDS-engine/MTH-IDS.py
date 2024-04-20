@@ -61,6 +61,7 @@ inputs['stack'] = {
     'learning_rate': {'mean': 0.01, 'std': 0.9}
 }
 def MTH(inputs):
+    outputs = {}
     #Read dataset
     df = pd.read_csv('Intrusion-Detection-System-Using-Machine-Learning/IDS-engine/data/CICIDS2017_sample.csv') 
     # The results in this code is based on the original CICIDS2017 dataset. Please go to cell [21] if you work on the sampled dataset. 
@@ -763,4 +764,4 @@ def MTH(inputs):
 
 
     CL_kmeans(X_train, X_test, y_train, y_test, 16)
-    return output
+    return outputs
