@@ -99,9 +99,13 @@ def runTreeBased(config, rundata, runs):
 
 #LOGIC CODE------------------------------------------------------------------------------------------
 #get paper results
-paper_runs = {}
+paper_runs_LCCDE = {}
 with open('LCCDE_PAPER.json', 'r') as f:
-    paper_runs = json.load(f)
+    paper_runs_LCCDE = json.load(f)
+
+paper_runs_Tree_Based = {}
+with open('Tree_Based_Paper.json', 'r') as f:
+    paper_runs_Tree_Based = json.load(f)
 
 #do the past runs
 runs = {}
@@ -204,7 +208,7 @@ with col1:
 
             config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state_TreeBased")
 
-            config["feature_trimming"] = st.slider("Feature Trimming: ", min_value=0.01, max_value=.99,value=(st.session_state.feature_trimming_TreeBased if "feature_trimming_TreeBased" in st.session_state else .9), step=0.01, key="feature_trimming_TreeBased")
+            config["feature_trimming"] = st.slider("Feature Trimming: ", min_value=0.01, max_value=1.0,value=(st.session_state.feature_trimming_TreeBased if "feature_trimming_TreeBased" in st.session_state else .9), step=0.01, key="feature_trimming_TreeBased")
 
             config["model_types"] = st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default=["decision tree", "random forest","extra trees", "XGBoost"], key="model_types_TreeBased")
 
@@ -254,7 +258,7 @@ with col1:
 
             st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
 
-            st.slider("Feature Trimming: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["feature_trimming"], 0.01, disabled=True)
+            st.slider("Feature Trimming: ", 0.01, 1.0, runs["runs"][currentRun - 1]["config"]["feature_trimming"], 0.01, disabled=True)
 
             st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default= runs["runs"][currentRun - 1]["config"]["model_types"], disabled=True)
 
@@ -285,7 +289,7 @@ with col1:
                     "dataset": runs["runs"][currentRun - 1]["config"]["dataset"],
                     "test_data_percent": runs["runs"][currentRun - 1]["config"]["test_data_percent"],
                     "random_state": runs["runs"][currentRun - 1]["config"]["random_state"],
-                    "boosting_type": runs["runs"][currentRun - 1]["config"]["boosting_type"],
+                    "boosting_type": runs["runs"][currentRun - 1]["config"]["boosting_type"] if "boosting_type" in runs["runs"][currentRun - 1]["config"] else "",
                     "smote": runs["runs"][currentRun - 1]["config"]["smote"]
                 }
 
@@ -295,17 +299,28 @@ with col1:
 #right 2/3 of the screen
 with col2:
     if currentRun == 0:
-        st.header("LCCDE Paper Results")
-        left, right = st.columns(2)
-        with left:
-            st.write("CICIDS2017 Dataset Results")
-            st.table(result_to_table1_LCCDE(paper_runs["CICIDS2017"]))
-            st.table(result_to_table2_LCCDE(paper_runs["CICIDS2017"]))
+        st.header("{} Paper Results".format(rundata["model_type"]))
+        if rundata["model_type"] == "LCCDE":
+            left, right = st.columns(2)
+            with left:
+                st.write("CICIDS2017 Dataset Results")
+                st.table(result_to_table1_LCCDE(paper_runs_LCCDE["CICIDS2017"]))
+                st.table(result_to_table2_LCCDE(paper_runs_LCCDE["CICIDS2017"]))
 
-        with right:
-            st.write("Car Hacking Dataset Results")
-            st.table(result_to_table1_LCCDE(paper_runs["CarHacking"]))
-            st.table(result_to_table2_LCCDE(paper_runs["CarHacking"]))
+            with right:
+                st.write("Car Hacking Dataset Results")
+                st.table(result_to_table1_LCCDE(paper_runs_LCCDE["CarHacking"]))
+                st.table(result_to_table2_LCCDE(paper_runs_LCCDE["CarHacking"]))
+        elif rundata["model_type"] == "MTH":
+            left, right = st.columns(2)
+        elif rundata["model_type"] == "Tree Based":
+            left, right = st.columns(2)
+            with left:
+                st.write("CICIDS2017 Dataset Results")
+                st.table(result_to_table1_TreeBased(paper_runs_Tree_Based["CICIDS2017"]))
+            with right:
+                st.write("CANIntrusion Dataset Results")
+                st.table(result_to_table1_TreeBased(paper_runs_Tree_Based["CANIntrusion"]))
     else:
         st.header("Run Results")
         compareOptions = ['None']

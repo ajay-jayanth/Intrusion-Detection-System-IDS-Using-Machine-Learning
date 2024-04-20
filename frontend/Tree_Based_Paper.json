@@ -1,0 +1,93 @@
+{
+    "CICIDS2017":         {
+        "rundata": {
+            "name": "Tree Based Paper - CICIDS2017 Dataset",
+            "model_type": "Tree Based",
+            "timestamp": "2024-04-19 15:55:28"
+        },
+        "config": {
+            "dataset": "CICIDS2017",
+            "test_data_percent": 0.2,
+            "random_state": 0,
+            "feature_trimming": 0.9,
+            "model_types": [
+                "decision tree",
+                "random forest",
+                "extra trees",
+                "XGBoost"
+            ],
+            "XGBoost_n_estimators": 10,
+            "smote": {
+                "4": 1500
+            }
+        },
+        "result": {
+            "decision_tree_accuracy": 0.9972,
+            "decision_tree_precision": 0.993,
+            "decision_tree_recall": 0.029,
+            "decision_tree_F1_score": 0.998,
+            "random_forest_accuracy": 0.9837,
+            "random_forest_precision": 0.9829,
+            "random_forest_recall": 0.039,
+            "random_forest_F1_score": 0.983,
+            "extra_trees_accuracy": 0.9343,
+            "extra_trees_precision": 0.9335,
+            "extra_trees_recall": 0.001,
+            "extra_trees_F1_score": 0.934,
+            "XGBoost_accuracy": 0.9978,
+            "XGBoost_precision": 0.9976,
+            "XGBoost_recall": 0.069,
+            "XGBoost_F1_score": 0.997,
+            "stacking_accuracy": 0.9986,
+            "stacking_precision": 0.998,
+            "stacking_recall": 0.012,
+            "stacking_F1_score": 0.998
+        }
+    },
+
+    "CANIntrusion":        {
+        "rundata": {
+            "name": "Run 4",
+            "model_type": "Tree Based Paper - CANIntrusion Dataset",
+            "timestamp": "2024-04-19 15:55:28"
+        },
+        "config": {
+            "dataset": "CanIntrusion",
+            "test_data_percent": 0.2,
+            "random_state": 0,
+            "feature_trimming": 0.9,
+            "model_types": [
+                "decision tree",
+                "random forest",
+                "extra trees",
+                "XGBoost"
+            ],
+            "XGBoost_n_estimators": 10,
+            "smote": {
+                "4": 1500
+            }
+        },
+        "result": {
+            "decision_tree_accuracy": 0.9999,
+            "decision_tree_precision": 0.9999,
+            "decision_tree_recall": 0.006,
+            "decision_tree_F1_score": 0.999,
+            "random_forest_accuracy": 0.9999,
+            "random_forest_precision": 0.9999,
+            "random_forest_recall": 0.0003,
+            "random_forest_F1_score": 0.999,
+            "extra_trees_accuracy": 0.9999,
+            "extra_trees_precision": 0.9999,
+            "extra_trees_recall": 0.0005,
+            "extra_trees_F1_score": 0.999,
+            "XGBoost_accuracy": 0.9998,
+            "XGBoost_precision": 0.9998,
+            "XGBoost_recall": 0.012,
+            "XGBoost_F1_score": 0.999,
+            "stacking_accuracy": 1.0,
+            "stacking_precision": 1.0,
+            "stacking_recall": 0,
+            "stacking_F1_score": 1
+        }
+    }
+}

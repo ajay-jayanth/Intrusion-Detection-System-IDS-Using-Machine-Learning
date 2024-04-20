@@ -1,0 +1,90 @@
+{
+    "xgboost_hpo": {
+        "best_param": {
+            "learning_rate": -1.47632785411843,
+            "max_depth": 52.0,
+            "n_estimators": 95.0
+        },
+        "accuracy": "0.996268656716418",
+        "precision": "0.996248270040266",
+        "f1": "0.9962493455417728",
+        "recall": "0.996268656716418"
+    },
+    "random_forest": {
+        "accuracy": "0.996268656716418",
+        "precision": "0.9945703603344985",
+        "f1": "0.9945710671516839",
+        "recall": "0.994589552238806"
+    },
+    "random_forest_hpo": {
+        "best_param": {
+            "criterion": 1,
+            "max_depth": 24.0,
+            "max_features": 9.0,
+            "min_samples_leaf": 3.0,
+            "min_samples_split": 3.0,
+            "n_estimators": 74.0
+        },
+        "accuracy": "0.996268656716418",
+        "precision": "0.9942009627774981",
+        "f1": "0.9941983502588844",
+        "recall": "0.9942164179104478"
+    },
+    "dt": {
+        "accuracy": "0.996268656716418",
+        "precision": "0.991504024455917",
+        "f1": "0.9911005803646205",
+        "recall": "0.9908582089552239"
+    },
+    "decision_tree_hpo": {
+        "best_param": {
+            "criterion": 0,
+            "max_depth": 21.0,
+            "max_features": 19.0,
+            "min_samples_leaf": 1.0,
+            "min_samples_split": 4.0,
+            "n_estimators": 141.0
+        },
+        "accuracy": "0.996268656716418",
+        "precision": "0.9915665657599181",
+        "f1": "0.9913728879937428",
+        "recall": "0.9912313432835821"
+    },
+    "extra_trees": {
+        "accuracy": "0.996268656716418",
+        "precision": "0.9942336548273475",
+        "f1": "0.9941889467417553",
+        "recall": "0.9942164179104478"
+    },
+    "extra_trees_hpo": {
+        "best_param": {
+            "criterion": 0,
+            "max_depth": 37.0,
+            "max_features": 20.0,
+            "min_samples_leaf": 1.0,
+            "min_samples_split": 4.0,
+            "n_estimators": 46.0
+        },
+        "accuracy": "0.996268656716418",
+        "precision": "0.9951691585005116",
+        "f1": "0.9951223446233803",
+        "recall": "0.9951492537313433"
+    },
+    "stack": {
+        "accuracy": "0.996268656716418",
+        "precision": "0.9960574746184598",
+        "f1": "0.9960613968018045",
+        "recall": "0.9960820895522388"
+    },
+    "stack_hpo": {
+        "best_param": {
+            "learning_rate": 0.27585436374516054,
+            "max_depth": 77.0,
+            "n_estimators": 65.0
+        },
+        "accuracy": "0.9958955223880597",
+        "precision": "0.9958748355876681",
+        "f1": "0.9958757995564536",
+        "recall": "0.9958955223880597"
+    }
+}

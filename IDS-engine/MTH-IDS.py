@@ -1,6 +1,7 @@
 import warnings
 warnings.filterwarnings("ignore")
 
+import json
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -62,7 +63,7 @@ inputs['stack'] = {
 }
 def MTH(inputs):
     #Read dataset
-    df = pd.read_csv('Intrusion-Detection-System-Using-Machine-Learning/IDS-engine/data/CICIDS2017_sample.csv') 
+    df = pd.read_csv('./data/CICIDS2017_sample.csv') 
     # The results in this code is based on the original CICIDS2017 dataset. Please go to cell [21] if you work on the sampled dataset. 
 
     # Z-score normalization
@@ -108,13 +109,13 @@ def MTH(inputs):
     ).apply(typicalSampling)
 
     result = result.drop(['klabel'],axis=1)
-    print(type(result))
+   #print(type(result))
     result = pd.concat([result, df_minor], ignore_index=True)
 
-    result.to_csv('Intrusion-Detection-System-Using-Machine-Learning/IDS-engine/mth_dataCICIDS2017_sample_km.csv',index=0)
-
     # Read the sampled dataset
-    df=pd.read_csv('Intrusion-Detection-System-Using-Machine-Learning/IDS-engine/mth_dataCICIDS2017_sample_km.csv')
+    df=pd.read_csv('./data/CICIDS2017_sample_km.csv')
+
+    features = df.dtypes[df.dtypes != 'object'].index
 
     X = df.drop(['Label'],axis=1).values
     y = df.iloc[:, -1].values.reshape(-1,1)
@@ -192,7 +193,7 @@ def MTH(inputs):
                 space=space,
                 algo=tpe.suggest,
                 max_evals=20)
-    print("XGBoost: Hyperopt estimated optimum {}".format(best))
+   #print("XGBoost: Hyperopt estimated optimum {}".format(best))
 
 
 
@@ -201,14 +202,14 @@ def MTH(inputs):
     xg_score=xg.score(X_test,y_test)
     y_predict=xg.predict(X_test)
     y_true=y_test
-    print('Accuracy of XGBoost: '+ str(xg_score))
+   #print('Accuracy of XGBoost: '+ str(xg_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of XGBoost: '+(str(precision)))
-    print('Recall of XGBoost: '+(str(recall)))
-    print('F1-score of XGBoost: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
+   #print('Precision of XGBoost: '+(str(precision)))
+   #print('Recall of XGBoost: '+(str(recall)))
+   #print('F1-score of XGBoost: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
 
-    outputs.update({'xgboost_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+    outputs.update({'xgboost_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
 
     xg_train=xg.predict(X_train)
@@ -220,13 +221,13 @@ def MTH(inputs):
     rf_score=rf.score(X_test,y_test)
     y_predict=rf.predict(X_test)
     y_true=y_test
-    print('Accuracy of RF: '+ str(rf_score))
+   #print('Accuracy of RF: '+ str(rf_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of RF: '+(str(precision)))
-    print('Recall of RF: '+(str(recall)))
-    print('F1-score of RF: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'random_forest':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of RF: '+(str(precision)))
+   #print('Recall of RF: '+(str(recall)))
+   #print('F1-score of RF: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'random_forest':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
 
     # Hyperparameter optimization of random forest
@@ -271,7 +272,7 @@ def MTH(inputs):
                 space=space,
                 algo=tpe.suggest,
                 max_evals=20)
-    print("Random Forest: Hyperopt estimated optimum {}".format(best))
+   #print("Random Forest: Hyperopt estimated optimum {}".format(best))
 
 
     rf_hpo = RandomForestClassifier(n_estimators = 71, min_samples_leaf = 1, max_depth = 46, min_samples_split = 9, max_features = 20, criterion = 'entropy')
@@ -279,13 +280,13 @@ def MTH(inputs):
     rf_score=rf_hpo.score(X_test,y_test)
     y_predict=rf_hpo.predict(X_test)
     y_true=y_test
-    print('Accuracy of RF: '+ str(rf_score))
+   #print('Accuracy of RF: '+ str(rf_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of RF: '+(str(precision)))
-    print('Recall of RF: '+(str(recall)))
-    print('F1-score of RF: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'random_forest_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of RF: '+(str(precision)))
+   #print('Recall of RF: '+(str(recall)))
+   #print('F1-score of RF: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'random_forest_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
     rf_train=rf_hpo.predict(X_train)
     rf_test=rf_hpo.predict(X_test)
@@ -297,13 +298,13 @@ def MTH(inputs):
     dt_score=dt.score(X_test,y_test)
     y_predict=dt.predict(X_test)
     y_true=y_test
-    print('Accuracy of DT: '+ str(dt_score))
+   #print('Accuracy of DT: '+ str(dt_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of DT: '+(str(precision)))
-    print('Recall of DT: '+(str(recall)))
-    print('F1-score of DT: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'dt':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of DT: '+(str(precision)))
+   #print('Recall of DT: '+(str(recall)))
+   #print('F1-score of DT: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'dt':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
 
     # Hyperparameter optimization of decision tree
@@ -336,7 +337,7 @@ def MTH(inputs):
                 space=space,
                 algo=tpe.suggest,
                 max_evals=50)
-    print("Decision tree: Hyperopt estimated optimum {}".format(best))
+   #print("Decision tree: Hyperopt estimated optimum {}".format(best))
 
 
     dt_hpo = DecisionTreeClassifier(min_samples_leaf = 2, max_depth = 47, min_samples_split = 3, max_features = 19, criterion = 'gini')
@@ -344,13 +345,13 @@ def MTH(inputs):
     dt_score=dt_hpo.score(X_test,y_test)
     y_predict=dt_hpo.predict(X_test)
     y_true=y_test
-    print('Accuracy of DT: '+ str(dt_score))
+   #print('Accuracy of DT: '+ str(dt_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of DT: '+(str(precision)))
-    print('Recall of DT: '+(str(recall)))
-    print('F1-score of DT: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'decision_tree_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of DT: '+(str(precision)))
+   #print('Recall of DT: '+(str(recall)))
+   #print('F1-score of DT: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'decision_tree_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
     dt_train=dt_hpo.predict(X_train)
     dt_test=dt_hpo.predict(X_test)
@@ -361,13 +362,13 @@ def MTH(inputs):
     et_score=et.score(X_test,y_test)
     y_predict=et.predict(X_test)
     y_true=y_test
-    print('Accuracy of ET: '+ str(et_score))
+   #print('Accuracy of ET: '+ str(et_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of ET: '+(str(precision)))
-    print('Recall of ET: '+(str(recall)))
-    print('F1-score of ET: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'extra_trees':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of ET: '+(str(precision)))
+   #print('Recall of ET: '+(str(recall)))
+   #print('F1-score of ET: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'extra_trees':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
 
 
@@ -413,7 +414,7 @@ def MTH(inputs):
                 space=space,
                 algo=tpe.suggest,
                 max_evals=20)
-    print("Random Forest: Hyperopt estimated optimum {}".format(best))
+   #print("Random Forest: Hyperopt estimated optimum {}".format(best))
 
 
 
@@ -424,13 +425,13 @@ def MTH(inputs):
     et_score=et_hpo.score(X_test,y_test)
     y_predict=et_hpo.predict(X_test)
     y_true=y_test
-    print('Accuracy of ET: '+ str(et_score))
+   #print('Accuracy of ET: '+ str(et_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of ET: '+(str(precision)))
-    print('Recall of ET: '+(str(recall)))
-    print('F1-score of ET: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'extra_trees_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of ET: '+(str(precision)))
+   #print('Recall of ET: '+(str(recall)))
+   #print('F1-score of ET: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'extra_trees_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
 
     et_train=et_hpo.predict(X_train)
@@ -464,13 +465,13 @@ def MTH(inputs):
     y_predict=stk.predict(x_test)
     y_true=y_test
     stk_score=accuracy_score(y_true,y_predict)
-    print('Accuracy of Stacking: '+ str(stk_score))
+   #print('Accuracy of Stacking: '+ str(stk_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of Stacking: '+(str(precision)))
-    print('Recall of Stacking: '+(str(recall)))
-    print('F1-score of Stacking: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'stack':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of Stacking: '+(str(precision)))
+   #print('Recall of Stacking: '+(str(recall)))
+   #print('F1-score of Stacking: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'stack':{'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
 
     from hyperopt import hp, fmin, tpe, STATUS_OK, Trials
@@ -504,7 +505,7 @@ def MTH(inputs):
                 space=space,
                 algo=tpe.suggest,
                 max_evals=20)
-    print("Stacking: Hyperopt estimated optimum {}".format(best))
+   #print("Stacking: Hyperopt estimated optimum {}".format(best))
 
 
 
@@ -513,13 +514,13 @@ def MTH(inputs):
     xg_score=xg.score(x_test,y_test)
     y_predict=xg.predict(x_test)
     y_true=y_test
-    print('Accuracy of XGBoost: '+ str(xg_score))
+   #print('Accuracy of XGBoost: '+ str(xg_score))
     precision,recall,fscore,none= precision_recall_fscore_support(y_true, y_predict, average='weighted') 
-    print('Precision of XGBoost: '+(str(precision)))
-    print('Recall of XGBoost: '+(str(recall)))
-    print('F1-score of XGBoost: '+(str(fscore)))
-    print(classification_report(y_true,y_predict))
-    outputs.update({'stack_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall),'class_rep': classification_report(y_true,y_predict)}})
+   #print('Precision of XGBoost: '+(str(precision)))
+   #print('Recall of XGBoost: '+(str(recall)))
+   #print('F1-score of XGBoost: '+(str(fscore)))
+    #print(classification_report(y_true,y_predict))
+    outputs.update({'stack_hpo':{'best_param':best,'accuracy':str(xg_score),'precision':str(precision),'f1':str(fscore),'recall': str(recall)}})
 
     df=result
     df1 = df[df['Label'] != 5]
@@ -608,16 +609,6 @@ def MTH(inputs):
     smote=SMOTE(n_jobs=-1,sampling_strategy={1:18225})
     X_train, y_train = smote.fit_resample(X_train, y_train)
 
-
-
-    from sklearn.cluster import KMeans
-    from sklearn.cluster import DBSCAN,MeanShift
-    from sklearn.cluster import SpectralClustering,AgglomerativeClustering,AffinityPropagation,Birch,MiniBatchKMeans,MeanShift 
-    from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
-    from sklearn.metrics import classification_report
-    from sklearn import metrics
-
-
     def CL_kmeans(X_train, X_test, y_train, y_test,n,b=100):
         km_cluster = MiniBatchKMeans(n_clusters=n,batch_size=b)
         result = km_cluster.fit_predict(X_train)
@@ -646,8 +637,9 @@ def MTH(inputs):
             elif result2[v] in list2:
                 result2[v]=1
             else:
-                print("-1")
-        print(classification_report(y_test, result2))
+                pass
+               #print("-1")
+        #print(classification_report(y_test, result2))
 
 
 
@@ -694,18 +686,19 @@ def MTH(inputs):
             elif result2[v] in list2:
                 result2[v]=1
             else:
-                print("-1")
+                pass
+               #print("-1")
         cm=metrics.accuracy_score(y_test,result2)
-        print(str(n)+" "+str(cm))
+       #print(str(n)+" "+str(cm))
         return (1-cm)
     from skopt import gp_minimize
     import time
     t1=time.time()
     res_gp = gp_minimize(objective, space, n_calls=20, random_state=0)
     t2=time.time()
-    print(t2-t1)
-    print("Best score=%.4f" % (1-res_gp.fun))
-    print("""Best parameters: n_clusters=%d""" % (res_gp.x[0]))
+   #print(t2-t1)
+   #print("Best score=%.4f" % (1-res_gp.fun))
+   #print("""Best parameters: n_clusters=%d""" % (res_gp.x[0]))
 
 
     #Hyperparameter optimization by BO-TPE
@@ -747,9 +740,10 @@ def MTH(inputs):
             elif result2[v] in list2:
                 result2[v]=1
             else:
-                print("-1")
+                pass
+               #print("-1")
         score=metrics.accuracy_score(y_test,result2)
-        print(str(params['n_clusters'])+" "+str(score))
+       #print(str(params['n_clusters'])+" "+str(score))
         return {'loss':1-score, 'status': STATUS_OK }
     space = {
         'n_clusters': hp.quniform('n_clusters', 2, 50, 1),
@@ -759,8 +753,49 @@ def MTH(inputs):
                 space=space,
                 algo=tpe.suggest,
                 max_evals=20)
-    print("Random Forest: Hyperopt estimated optimum {}".format(best))
+   #print("Random Forest: Hyperopt estimated optimum {}".format(best))
 
 
     CL_kmeans(X_train, X_test, y_train, y_test, 16)
-    return output
+    
+    return {
+        "random_forest_accuracy": outputs["random_forest"]["accuracy"],
+        "random_forest_precision": outputs["random_forest"]["precision"],
+        "random_forest_F1": outputs["random_forest"]["f1"],
+        "random_forest_recall": outputs["random_forest"]["recall"],
+
+        "random_forest_hpo_accuracy": outputs["random_forest_hpo"]["accuracy"],
+        "random_forest_hpo_precision": outputs["random_forest_hpo"]["precision"],
+        "random_forest_hpo_F1": outputs["random_forest_hpo"]["f1"],
+        "random_forest_hpo_recall": outputs["random_forest_hpo"]["recall"],
+
+        "decision_tree_accuracy": outputs["dt"]["accuracy"],
+        "decision_tree_precision": outputs["dt"]["precision"],
+        "decision_tree_F1": outputs["dt"]["f1"],
+        "decision_tree_recall": outputs["dt"]["recall"],
+
+        "decision_tree_hpo_accuracy": outputs["decision_tree_hpo"]["accuracy"],
+        "decision_tree_hpo_precision": outputs["decision_tree_hpo"]["precision"],
+        "decision_tree_hpo_F1": outputs["decision_tree_hpo"]["f1"],
+        "decision_tree_hpo_recall": outputs["decision_tree_hpo"]["recall"],
+
+        "extra_trees_accuracy": outputs["extra_trees"]["accuracy"], 
+        "extra_trees_precision": outputs["extra_trees"]["precision"], 
+        "extra_trees_F1": outputs["extra_trees"]["f1"], 
+        "extra_trees_recall": outputs["extra_trees"]["recall"], 
+
+        "extra_trees_hpo_accuracy": outputs["extra_trees_hpo"]["accuracy"],
+        "extra_trees_hpo_precision": outputs["extra_trees_hpo"]["precision"],
+        "extra_trees_hpo_F1": outputs["extra_trees_hpo"]["f1"],
+        "extra_trees_hpo_recall": outputs["extra_trees_hpo"]["recall"],
+
+        "mth_ids_accuracy": outputs["stack"]["accuracy"],
+        "mth_ids_precision": outputs["stack"]["precision"],
+        "mth_ids_F1": outputs["stack"]["f1"],
+        "mth_ids_recall": outputs["stack"]["recall"],
+
+        "mth_ids_hpo_accuracy": outputs["stack_hpo"]["accuracy"],
+        "mth_ids_hpo_precision": outputs["stack_hpo"]["precision"],
+        "mth_ids_hpo_F1": outputs["stack_hpo"]["f1"],
+        "mth_ids_hpo_recall": outputs["stack_hpo"]["recall"],
+    }

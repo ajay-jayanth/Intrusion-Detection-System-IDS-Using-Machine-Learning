@@ -51,7 +51,7 @@ def run(config):
     X = df.drop(['Label'],axis=1).values 
     y = df.iloc[:, -1].values.reshape(-1,1)
     y=np.ravel(y)
-    X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 0.8, test_size = 0.2, random_state = 0,stratify = y)
+    X_train, X_test, y_train, y_test = train_test_split(X,y, train_size = 1 - config["test_data_percent"], test_size = config["test_data_percent"], random_state = config["random_state"], stratify = y) 
     y_train=y_train.astype('int') #have to add this line for stuff to work
     y_test=y_test.astype('int') #have to add this line for stuff to work
 
@@ -186,7 +186,7 @@ def run(config):
 
         X_fs = df[fs].values
 
-        X_train, X_test, y_train, y_test = train_test_split(X_fs,y, train_size = 0.8, test_size = 0.2, random_state = 0,stratify = y)
+        X_train, X_test, y_train, y_test = train_test_split(X_fs,y, train_size = 1 - config["test_data_percent"], test_size = config["test_data_percent"], random_state = config["random_state"], stratify = y)
         y_train=y_train.astype('int') #have to add this line for stuff to work
         y_test=y_test.astype('int') #have to add this line for stuff to work
 
@@ -236,28 +236,28 @@ def run(config):
     #populate and return resultss
     result = {
         "decision_tree_accuracy": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None,
-        "decision_tree_precision": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None, 
-        "decision_tree_recall": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None,
-        "decision_tree_F1_score": model_results['decision tree']['accuracy'] if 'decision tree' in model_results else None,
+        "decision_tree_precision": model_results['decision tree']['precision'] if 'decision tree' in model_results else None, 
+        "decision_tree_recall": model_results['decision tree']['recall'] if 'decision tree' in model_results else None,
+        "decision_tree_F1_score": model_results['decision tree']['F1_score'] if 'decision tree' in model_results else None,
 
         "random_forest_accuracy": model_results['random forest']['accuracy'] if 'random forest' in model_results else None,
-        "random_forest_precision": model_results['random forest']['accuracy'] if 'random forest' in model_results else None, 
-        "random_forest_recall": model_results['random forest']['accuracy'] if 'random forest' in model_results else None,
-        "random_forest_F1_score": model_results['random forest']['accuracy'] if 'random forest' in model_results else None,
+        "random_forest_precision": model_results['random forest']['precision'] if 'random forest' in model_results else None, 
+        "random_forest_recall": model_results['random forest']['recall'] if 'random forest' in model_results else None,
+        "random_forest_F1_score": model_results['random forest']['F1_score'] if 'random forest' in model_results else None,
 
         "extra_trees_accuracy": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None,
-        "extra_trees_precision": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None, 
-        "extra_trees_recall": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None,
-        "extra_trees_F1_score": model_results['extra trees']['accuracy'] if 'extra trees' in model_results else None,
+        "extra_trees_precision": model_results['extra trees']['precision'] if 'extra trees' in model_results else None, 
+        "extra_trees_recall": model_results['extra trees']['recall'] if 'extra trees' in model_results else None,
+        "extra_trees_F1_score": model_results['extra trees']['F1_score'] if 'extra trees' in model_results else None,
 
         "XGBoost_accuracy": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None,
-        "XGBoost_precision": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None, 
-        "XGBoost_recall": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None,
-        "XGBoost_F1_score": model_results['XGBoost']['accuracy'] if 'XGBoost' in model_results else None,
+        "XGBoost_precision": model_results['XGBoost']['precision'] if 'XGBoost' in model_results else None, 
+        "XGBoost_recall": model_results['XGBoost']['recall'] if 'XGBoost' in model_results else None,
+        "XGBoost_F1_score": model_results['XGBoost']['F1_score'] if 'XGBoost' in model_results else None,
 
         "stacking_accuracy": model_results['stacking']['accuracy'] if 'stacking' in model_results else None,
-        "stacking_precision": model_results['stacking']['accuracy'] if 'stacking' in model_results else None, 
-        "stacking_recall": model_results['stacking']['accuracy'] if 'stacking' in model_results else None,
-        "stacking_F1_score": model_results['stacking']['accuracy'] if 'stacking' in model_results else None,
+        "stacking_precision": model_results['stacking']['precision'] if 'stacking' in model_results else None, 
+        "stacking_recall": model_results['stacking']['recall'] if 'stacking' in model_results else None,
+        "stacking_F1_score": model_results['stacking']['F1_score'] if 'stacking' in model_results else None,
     }
     return result

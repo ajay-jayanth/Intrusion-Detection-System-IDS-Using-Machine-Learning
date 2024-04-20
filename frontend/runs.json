@@ -206,7 +206,7 @@
             "rundata": {
                 "name": "Run 4",
                 "model_type": "Tree Based",
-                "timestamp": "2024-04-19 15:55:28"
+                "timestamp": "2024-04-20 15:19:05"
             },
             "config": {
                 "dataset": "CICIDS2017_sample",
@@ -225,26 +225,26 @@
                 }
             },
             "result": {
-                "decision_tree_accuracy": 0.9963822465366629,
-                "decision_tree_precision": 0.9963822465366629,
-                "decision_tree_recall": 0.9963822465366629,
-                "decision_tree_F1_score": 0.9963822465366629,
-                "random_forest_accuracy": 0.9969116738727609,
-                "random_forest_precision": 0.9969116738727609,
-                "random_forest_recall": 0.9969116738727609,
-                "random_forest_F1_score": 0.9969116738727609,
-                "extra_trees_accuracy": 0.9954116297538163,
-                "extra_trees_precision": 0.9954116297538163,
-                "extra_trees_recall": 0.9954116297538163,
-                "extra_trees_F1_score": 0.9954116297538163,
-                "XGBoost_accuracy": 0.994088061413571,
-                "XGBoost_precision": 0.994088061413571,
-                "XGBoost_recall": 0.994088061413571,
-                "XGBoost_F1_score": 0.994088061413571,
-                "stacking_accuracy": 0.9955881055325156,
-                "stacking_precision": 0.9955881055325156,
-                "stacking_recall": 0.9955881055325156,
-                "stacking_F1_score": 0.9955881055325156
+                "decision_tree_accuracy": 0.995764581311215,
+                "decision_tree_precision": 0.9957627795485846,
+                "decision_tree_recall": 0.995764581311215,
+                "decision_tree_F1_score": 0.9957606723452622,
+                "random_forest_accuracy": 0.9971763875408101,
+                "random_forest_precision": 0.9971770977890132,
+                "random_forest_recall": 0.9971763875408101,
+                "random_forest_F1_score": 0.9971576390788407,
+                "extra_trees_accuracy": 0.9953233918644666,
+                "extra_trees_precision": 0.9953156802261756,
+                "extra_trees_recall": 0.9953233918644666,
+                "extra_trees_F1_score": 0.9953132712272802,
+                "XGBoost_accuracy": 0.9936468719668226,
+                "XGBoost_precision": 0.9936441752042826,
+                "XGBoost_recall": 0.9936468719668226,
+                "XGBoost_F1_score": 0.9936271728673197,
+                "stacking_accuracy": 0.9956763434218654,
+                "stacking_precision": 0.9956774514766904,
+                "stacking_recall": 0.9956763434218654,
+                "stacking_F1_score": 0.9956572985934015
             }
         }
     ]
