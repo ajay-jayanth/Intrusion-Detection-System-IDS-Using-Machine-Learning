@@ -200,7 +200,111 @@ with col1:
 
             config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
         elif rundata["model_type"] == "MTH":
-            st.write("test for MTH")
+            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017"], key="dataset_MTH")
+            
+            # Get user inputs for max, min, and step for n estimators
+            st.write("N Estimators: ")
+            maxLabel_ne, maxInput_ne, minLabel_ne, minInput_ne, stepLabel_ne, stepInput_ne = st.columns(6)
+            with maxLabel_ne:
+                st.write("Max:")
+            with maxInput_ne:
+                max_value_ne = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_ne")
+
+            with minLabel_ne:
+                st.write("Min:")
+            with minInput_ne:
+                min_value_ne = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_ne")
+
+            with stepLabel_ne:
+                st.write("Step:")
+            with stepInput_ne: 
+                step_value_ne = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_ne")
+            
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Max Depth: ")
+            maxLabel_md, maxInput_md, minLabel_md, minInput_md, stepLabel_md, stepInput_md = st.columns(6)
+            with maxLabel_md:
+                st.write("Max:")
+            with maxInput_md:
+                max_value_md = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_md")
+
+            with minLabel_md:
+                st.write("Min:")
+            with minInput_md:
+                min_value_md = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_md")
+
+            with stepLabel_md:
+                st.write("Step:")
+            with stepInput_md: 
+                step_value_md = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_md")
+
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Max Features: ")
+            maxLabel_mf, maxInput_mf, minLabel_mf, minInput_mf, stepLabel_mf, stepInput_mf = st.columns(6)
+            with maxLabel_mf:
+                st.write("Max:")
+            with maxInput_mf:
+                max_value_mf = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_mf")
+
+            with minLabel_mf:
+                st.write("Min:")
+            with minInput_mf:
+                min_value_mf = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_mf")
+
+            with stepLabel_mf:
+                st.write("Step:")
+            with stepInput_mf: 
+                step_value_mf = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mf")
+
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Min Samples Split: ")
+            maxLabel_mss, maxInput_mss, minLabel_mss, minInput_mss, stepLabel_mss, stepInput_mss = st.columns(6)
+            with maxLabel_mss:
+                st.write("Max:")
+            with maxInput_mss:
+                max_value_mss = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_mss")
+
+            with minLabel_mss:
+                st.write("Min:")
+            with minInput_mss:
+                min_value_mss = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_mss")
+
+            with stepLabel_mss:
+                st.write("Step:")
+            with stepInput_mss: 
+                step_value_mss = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mss")
+
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Min Samples Leaf: ")
+            maxLabel_msl, maxInput_msl, minLabel_msl, minInput_msl, stepLabel_msl, stepInput_msl = st.columns(6)
+            with maxLabel_msl:
+                st.write("Max:")
+            with maxInput_msl:
+                max_value_msl = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_msl")
+
+            with minLabel_msl:
+                st.write("Min:")
+            with minInput_msl:
+                min_value_msl = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_msl")
+
+            with stepLabel_msl:
+                st.write("Step:")
+            with stepInput_msl: 
+                step_value_msl = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_msl")
+
+            st.write("Learning Rate: ")
+            meanLabel_lr, meanInput_lr, stdLabel_lr, stdInput_lr= st.columns(4)
+            with meanLabel_lr:
+                st.write("Mean:")
+            with meanInput_lr:
+                mean_value_lr = st.number_input("Mean: ", min_value=0.0, max_value=1.0, value=.01, step=.01, label_visibility="collapsed", key="mean_value_lr")
+            
+            with stdLabel_lr:
+                st.write("Std:")
+            with stdInput_lr:
+                std_value_lr = st.number_input("Std: ", min_value=0.0, max_value=1.0, value=.9, step=.01, label_visibility="collapsed", key="std_value_lr")
+
+
         elif rundata["model_type"] == "Tree Based":
             config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample", "CICIDS2017", "CANIntrusion_sample", "CANIntrusion"), key="dataset_TreeBased")
             

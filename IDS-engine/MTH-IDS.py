@@ -16,52 +16,21 @@ import xgboost as xgb
 from xgboost import plot_importance
 
 # Define inputs dictionary for hyperparameters
-inputs = {}
 outputs = {}
 
 # Random Forest Classifier
-inputs['random_forest'] = {
+config = {
     'n_estimators': {'min': 10, 'max': 200, 'step': 1},
     'max_depth': {'min': 5, 'max': 50, 'step': 1},
     'max_features': {'min': 1, 'max': 20, 'step': 1},
     'min_samples_split': {'min': 2, 'max': 11, 'step': 1},
     'min_samples_leaf': {'min': 1, 'max': 11, 'step': 1},
-    'criterion': ['gini', 'entropy']
-}
-
-# Decision Tree Classifier
-inputs['decision_tree'] = {
-    'max_depth': {'min': 1, 'max': 50, 'step': 1},
-    'max_features': {'min': 1, 'max': 20, 'step': 1},
-    'min_samples_split': {'min': 2, 'max': 11, 'step': 1},
-    'min_samples_leaf': {'min': 1, 'max': 11, 'step': 1},
-    'criterion': ['gini', 'entropy']
-}
-
-# Extra Trees Classifier
-inputs['extra_trees'] = {
-    'n_estimators': {'min': 10, 'max': 200, 'step': 1},
-    'max_depth': {'min': 5, 'max': 50, 'step': 1},
-    'max_features': {'min': 1, 'max': 20, 'step': 1},
-    'min_samples_split': {'min': 2, 'max': 11, 'step': 1},
-    'min_samples_leaf': {'min': 1, 'max': 11, 'step': 1},
-    'criterion': ['gini', 'entropy']
-}
-
-# XGBoost Classifier
-inputs['xgboost'] = {
-    'n_estimators': {'min': 10, 'max': 100, 'step': 5},
-    'max_depth': {'min': 4, 'max': 100, 'step': 1},
+    'criterion': ['gini', 'entropy'], #Remove this one (aka add it back)
     'learning_rate': {'mean': 0.01, 'std': 0.9}
 }
+config['criterion'] = ['gini', 'entropy']
 
-# Stacking Classifier
-inputs['stack'] = {
-    'n_estimators': {'min': 10, 'max': 100, 'step': 5},
-    'max_depth': {'min': 4, 'max': 100, 'step': 1},
-    'learning_rate': {'mean': 0.01, 'std': 0.9}
-}
-def MTH(inputs):
+def MTH(config):
     outputs = {}
     #Read dataset
     df = pd.read_csv('./data/CICIDS2017_sample.csv') 
@@ -180,14 +149,14 @@ def MTH(inputs):
         return {'loss':-score, 'status': STATUS_OK }
 
     space = {
-        'n_estimators': hp.quniform('n_estimators', inputs['xgboost']['n_estimators']['min'],
-                                    inputs['xgboost']['n_estimators']['max'],
-                                    inputs['xgboost']['n_estimators']['step']),
-        'max_depth': hp.quniform('max_depth', inputs['xgboost']['max_depth']['min'],
-                                inputs['xgboost']['max_depth']['max'],
-                                inputs['xgboost']['max_depth']['step']),
-        'learning_rate': hp.normal('learning_rate', inputs['xgboost']['learning_rate']['mean'],
-                                inputs['xgboost']['learning_rate']['std'])
+        'n_estimators': hp.quniform('n_estimators', config['n_estimators']['min'],
+                                    config['n_estimators']['max'],
+                                    config['n_estimators']['step']),
+        'max_depth': hp.quniform('max_depth', config['max_depth']['min'],
+                                config['max_depth']['max'],
+                                config['max_depth']['step']),
+        'learning_rate': hp.normal('learning_rate', config['learning_rate']['mean'],
+                                config['learning_rate']['std'])
     }
 
     best = fmin(fn=objective,
@@ -251,22 +220,22 @@ def MTH(inputs):
         return {'loss':-score, 'status': STATUS_OK }
     # Define the hyperparameter configuration space
     space = {
-        'n_estimators': hp.quniform('n_estimators', inputs['random_forest']['n_estimators']['min'],
-                                    inputs['random_forest']['n_estimators']['max'],
-                                    inputs['random_forest']['n_estimators']['step']),
-        'max_depth': hp.quniform('max_depth', inputs['random_forest']['max_depth']['min'],
-                                inputs['random_forest']['max_depth']['max'],
-                                inputs['random_forest']['max_depth']['step']),
-        'max_features': hp.quniform('max_features', inputs['random_forest']['max_features']['min'],
-                                    inputs['random_forest']['max_features']['max'],
-                                    inputs['random_forest']['max_features']['step']),
-        'min_samples_split': hp.quniform('min_samples_split', inputs['random_forest']['min_samples_split']['min'],
-                                        inputs['random_forest']['min_samples_split']['max'],
-                                        inputs['random_forest']['min_samples_split']['step']),
-        'min_samples_leaf': hp.quniform('min_samples_leaf', inputs['random_forest']['min_samples_leaf']['min'],
-                                        inputs['random_forest']['min_samples_leaf']['max'],
-                                        inputs['random_forest']['min_samples_leaf']['step']),
-        'criterion': hp.choice('criterion', inputs['random_forest']['criterion'])
+        'n_estimators': hp.quniform('n_estimators', config['n_estimators']['min'],
+                                    config['n_estimators']['max'],
+                                    config['n_estimators']['step']),
+        'max_depth': hp.quniform('max_depth', config['max_depth']['min'],
+                                config['max_depth']['max'],
+                                config['max_depth']['step']),
+        'max_features': hp.quniform('max_features', config['max_features']['min'],
+                                    config['max_features']['max'],
+                                    config['max_features']['step']),
+        'min_samples_split': hp.quniform('min_samples_split', config['min_samples_split']['min'],
+                                        config['min_samples_split']['max'],
+                                        config['min_samples_split']['step']),
+        'min_samples_leaf': hp.quniform('min_samples_leaf', config['min_samples_leaf']['min'],
+                                        config['min_samples_leaf']['max'],
+                                        config['min_samples_leaf']['step']),
+        'criterion': hp.choice('criterion', config['criterion'])
     }
 
     best = fmin(fn=objective,
@@ -327,11 +296,11 @@ def MTH(inputs):
         return {'loss':-score, 'status': STATUS_OK }
     # Define the hyperparameter configuration space
     dt_space = {
-        'max_depth': hp.quniform('max_depth', inputs['decision_tree']['max_depth']['min'], inputs['decision_tree']['max_depth']['max'], inputs['decision_tree']['max_depth']['step']),
-        'max_features': hp.quniform('max_features', inputs['decision_tree']['max_features']['min'], inputs['decision_tree']['max_features']['max'], inputs['decision_tree']['max_features']['step']),
-        'min_samples_split': hp.quniform('min_samples_split', inputs['decision_tree']['min_samples_split']['min'], inputs['decision_tree']['min_samples_split']['max'], inputs['decision_tree']['min_samples_split']['step']),
-        'min_samples_leaf': hp.quniform('min_samples_leaf', inputs['decision_tree']['min_samples_leaf']['min'], inputs['decision_tree']['min_samples_leaf']['max'], inputs['decision_tree']['min_samples_leaf']['step']),
-        'criterion': hp.choice('criterion', inputs['decision_tree']['criterion'])
+        'max_depth': hp.quniform('max_depth', config['max_depth']['min'], config['max_depth']['max'], config['max_depth']['step']),
+        'max_features': hp.quniform('max_features', config['max_features']['min'], config['max_features']['max'], config['max_features']['step']),
+        'min_samples_split': hp.quniform('min_samples_split', config['min_samples_split']['min'], config['min_samples_split']['max'], config['min_samples_split']['step']),
+        'min_samples_leaf': hp.quniform('min_samples_leaf', config['min_samples_leaf']['min'], config['min_samples_leaf']['max'], config['min_samples_leaf']['step']),
+        'criterion': hp.choice('criterion', config['criterion'])
     }
 
     best = fmin(fn=objective,
@@ -393,22 +362,22 @@ def MTH(inputs):
         return {'loss':-score, 'status': STATUS_OK }
     # Define the hyperparameter configuration space
     space = {
-        'n_estimators': hp.quniform('n_estimators', inputs['extra_trees']['n_estimators']['min'],
-                                    inputs['extra_trees']['n_estimators']['max'],
-                                    inputs['extra_trees']['n_estimators']['step']),
-        'max_depth': hp.quniform('max_depth', inputs['extra_trees']['max_depth']['min'],
-                                inputs['extra_trees']['max_depth']['max'],
-                                inputs['extra_trees']['max_depth']['step']),
-        'max_features': hp.quniform('max_features', inputs['extra_trees']['max_features']['min'],
-                                    inputs['extra_trees']['max_features']['max'],
-                                    inputs['extra_trees']['max_features']['step']),
-        'min_samples_split': hp.quniform('min_samples_split', inputs['extra_trees']['min_samples_split']['min'],
-                                        inputs['extra_trees']['min_samples_split']['max'],
-                                        inputs['extra_trees']['min_samples_split']['step']),
-        'min_samples_leaf': hp.quniform('min_samples_leaf', inputs['extra_trees']['min_samples_leaf']['min'],
-                                        inputs['extra_trees']['min_samples_leaf']['max'],
-                                        inputs['extra_trees']['min_samples_leaf']['step']),
-        'criterion': hp.choice('criterion', inputs['extra_trees']['criterion'])
+        'n_estimators': hp.quniform('n_estimators', config['n_estimators']['min'],
+                                    config['n_estimators']['max'],
+                                    config['n_estimators']['step']),
+        'max_depth': hp.quniform('max_depth', config['max_depth']['min'],
+                                config['max_depth']['max'],
+                                config['max_depth']['step']),
+        'max_features': hp.quniform('max_features', config['max_features']['min'],
+                                    config['max_features']['max'],
+                                    config['max_features']['step']),
+        'min_samples_split': hp.quniform('min_samples_split', config['min_samples_split']['min'],
+                                        config['min_samples_split']['max'],
+                                        config['min_samples_split']['step']),
+        'min_samples_leaf': hp.quniform('min_samples_leaf', config['min_samples_leaf']['min'],
+                                        config['min_samples_leaf']['max'],
+                                        config['min_samples_leaf']['step']),
+        'criterion': hp.choice('criterion', config['criterion'])
     }
 
     best = fmin(fn=objective,
@@ -492,14 +461,14 @@ def MTH(inputs):
         return {'loss':-score, 'status': STATUS_OK }
 
     space = {
-        'n_estimators': hp.quniform('n_estimators', inputs['stack']['n_estimators']['min'],
-                                    inputs['stack']['n_estimators']['max'],
-                                    inputs['stack']['n_estimators']['step']),
-        'max_depth': hp.quniform('max_depth', inputs['stack']['max_depth']['min'],
-                                inputs['stack']['max_depth']['max'],
-                                inputs['stack']['max_depth']['step']),
-        'learning_rate': hp.normal('learning_rate', inputs['stack']['learning_rate']['mean'],
-                                                    inputs['stack']['learning_rate']['std'])
+        'n_estimators': hp.quniform('n_estimators', config['n_estimators']['min'],
+                                    config['n_estimators']['max'],
+                                    config['n_estimators']['step']),
+        'max_depth': hp.quniform('max_depth', config['max_depth']['min'],
+                                config['max_depth']['max'],
+                                config['max_depth']['step']),
+        'learning_rate': hp.normal('learning_rate', config['learning_rate']['mean'],
+                                                    config['learning_rate']['std'])
     }
 
     best = fmin(fn=objective,
