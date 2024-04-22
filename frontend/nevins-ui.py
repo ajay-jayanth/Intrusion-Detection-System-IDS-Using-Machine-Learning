@@ -291,7 +291,7 @@ with col1:
         rundata["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type")
 
         if rundata["model_type"] == "LCCDE":
-            config["dataset"] = st.selectbox("Dataset: ", ("carHackingDataset_km", "carHackingDataset_sample_km", "CICIDS2017_km", "CICIDS2017_sample_km"), key="dataset")
+            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample_km", "carHackingDataset_sample_km"), key="dataset")
             
             config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent if "test_data_percent" in st.session_state else .2), step=0.01, key="test_data_percent")
 
@@ -301,7 +301,7 @@ with col1:
 
             config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
         elif rundata["model_type"] == "MTH":
-            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017_sample", "CICIDS2017"], key="dataset_MTH")
+            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017_sample"], key="dataset_MTH")
             
             # Get user inputs for max, min, and step for n estimators
             st.write("N Estimators: ")
@@ -407,7 +407,7 @@ with col1:
 
 
         elif rundata["model_type"] == "Tree Based":
-            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample", "CICIDS2017", "CANIntrusion_sample", "CANIntrusion"), key="dataset_TreeBased")
+            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample", "CANIntrusion_sample"), key="dataset_TreeBased")
             
             config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent_TreeBased if "test_data_percent_TreeBased" in st.session_state else .2), step=0.01, key="test_data_percent_TreeBased")
 
