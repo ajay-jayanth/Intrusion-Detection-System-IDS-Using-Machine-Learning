@@ -6,6 +6,7 @@ import sys
 sys.path.append('../IDS-engine')
 import LCCDE
 import TreeBased
+import MTH
 
 
 #FUNCTIONS---------------------------------------------------------------------------
@@ -85,6 +86,33 @@ def runTreeBased(config, rundata, runs):
     #do timestamp
     rundata["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     result = TreeBased.run(config)
+
+    #save the run
+    runs["runs"].append({
+        "rundata": rundata,
+        "config": config,
+        "result": result
+    })
+
+    json_object = json.dumps(runs, indent=4)
+    with open("runs.json", "w") as outfile:
+        outfile.write(json_object)
+
+def runMTH(config, rundata, runs):
+    #do timestamp
+    rundata["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    #reformat config
+    mth_config = {
+        'dataset': config['dataset'],
+        'n_estimators': {'min': config['n_estimators_min'], 'max': config['n_estimators_max'], 'step': config['n_estimators_step']},
+        'max_depth': {'min': config['max_depth_min'], 'max': config['max_depth_max'], 'step': config['max_depth_step']},
+        'max_features': {'min': config['max_features_min'], 'max': config['max_features_max'], 'step': config['max_features_step']},
+        'min_samples_split': {'min': config['min_samples_split_min'], 'max': config['min_samples_split_max'], 'step': config['min_samples_split_step']},
+        'min_samples_leaf': {'min': config['min_samples_leaf_min'], 'max': config['min_samples_leaf_max'], 'step': config['min_samples_leaf_step']},
+        'criterion': ['gini', 'entropy'],
+        'learning_rate': {'mean': config['learning_rate_mean'], 'std': config['learning_rate_std']}
+    }
+    result = MTH.run(mth_config)
 
     #save the run
     runs["runs"].append({
@@ -200,7 +228,7 @@ with col1:
 
             config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
         elif rundata["model_type"] == "MTH":
-            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017"], key="dataset_MTH")
+            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017_sample", "CICIDS2017"], key="dataset_MTH")
             
             # Get user inputs for max, min, and step for n estimators
             st.write("N Estimators: ")
@@ -208,17 +236,17 @@ with col1:
             with maxLabel_ne:
                 st.write("Max:")
             with maxInput_ne:
-                max_value_ne = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_ne")
+                config["n_estimators_max"] = st.number_input("Max: ", min_value=1, value=200, step=1, label_visibility="collapsed", key="max_value_ne")
 
             with minLabel_ne:
                 st.write("Min:")
             with minInput_ne:
-                min_value_ne = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_ne")
+                config["n_estimators_min"] = st.number_input("Min: ", min_value=0, value=10, step=1, label_visibility="collapsed", key="min_value_ne")
 
             with stepLabel_ne:
                 st.write("Step:")
             with stepInput_ne: 
-                step_value_ne = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_ne")
+                config["n_estimators_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_ne")
             
             # Get user inputs for max, min, and step for n estimators
             st.write("Max Depth: ")
@@ -226,17 +254,17 @@ with col1:
             with maxLabel_md:
                 st.write("Max:")
             with maxInput_md:
-                max_value_md = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_md")
+                config["max_depth_max"] = st.number_input("Max: ", min_value=1, value=50, step=1, label_visibility="collapsed", key="max_value_md")
 
             with minLabel_md:
                 st.write("Min:")
             with minInput_md:
-                min_value_md = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_md")
+                config["max_depth_min"] = st.number_input("Min: ", min_value=0, value=5, step=1, label_visibility="collapsed", key="min_value_md")
 
             with stepLabel_md:
                 st.write("Step:")
             with stepInput_md: 
-                step_value_md = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_md")
+                config["max_depth_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_md")
 
             # Get user inputs for max, min, and step for n estimators
             st.write("Max Features: ")
@@ -244,17 +272,17 @@ with col1:
             with maxLabel_mf:
                 st.write("Max:")
             with maxInput_mf:
-                max_value_mf = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_mf")
+                config["max_features_max"] = st.number_input("Max: ", min_value=1, value=20, step=1, label_visibility="collapsed", key="max_value_mf")
 
             with minLabel_mf:
                 st.write("Min:")
             with minInput_mf:
-                min_value_mf = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_mf")
+                config["max_features_min"] = st.number_input("Min: ", min_value=0, value=1, step=1, label_visibility="collapsed", key="min_value_mf")
 
             with stepLabel_mf:
                 st.write("Step:")
             with stepInput_mf: 
-                step_value_mf = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mf")
+                config["max_features_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mf")
 
             # Get user inputs for max, min, and step for n estimators
             st.write("Min Samples Split: ")
@@ -262,17 +290,17 @@ with col1:
             with maxLabel_mss:
                 st.write("Max:")
             with maxInput_mss:
-                max_value_mss = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_mss")
+                config["min_samples_split_max"] = st.number_input("Max: ", min_value=1, value=11, step=1, label_visibility="collapsed", key="max_value_mss")
 
             with minLabel_mss:
                 st.write("Min:")
             with minInput_mss:
-                min_value_mss = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_mss")
+                config["min_samples_split_min"] = st.number_input("Min: ", min_value=0, value=2, step=1, label_visibility="collapsed", key="min_value_mss")
 
             with stepLabel_mss:
                 st.write("Step:")
             with stepInput_mss: 
-                step_value_mss = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mss")
+                config["min_samples_split_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mss")
 
             # Get user inputs for max, min, and step for n estimators
             st.write("Min Samples Leaf: ")
@@ -280,29 +308,29 @@ with col1:
             with maxLabel_msl:
                 st.write("Max:")
             with maxInput_msl:
-                max_value_msl = st.number_input("Max: ", min_value=1, value=10, step=1, label_visibility="collapsed", key="max_value_msl")
+                config["min_samples_leaf_max"] = st.number_input("Max: ", min_value=1, value=11, step=1, label_visibility="collapsed", key="max_value_msl")
 
             with minLabel_msl:
                 st.write("Min:")
             with minInput_msl:
-                min_value_msl = st.number_input("Min: ", min_value=0, value=0, step=1, label_visibility="collapsed", key="min_value_msl")
+                config["min_samples_leaf_min"] = st.number_input("Min: ", min_value=0, value=1, step=1, label_visibility="collapsed", key="min_value_msl")
 
             with stepLabel_msl:
                 st.write("Step:")
             with stepInput_msl: 
-                step_value_msl = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_msl")
+                config["min_samples_leaf_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_msl")
 
             st.write("Learning Rate: ")
             meanLabel_lr, meanInput_lr, stdLabel_lr, stdInput_lr= st.columns(4)
             with meanLabel_lr:
                 st.write("Mean:")
             with meanInput_lr:
-                mean_value_lr = st.number_input("Mean: ", min_value=0.0, max_value=1.0, value=.01, step=.01, label_visibility="collapsed", key="mean_value_lr")
+                config["learning_rate_mean"] = st.number_input("Mean: ", min_value=0.0, max_value=1.0, value=.01, step=.01, label_visibility="collapsed", key="mean_value_lr")
             
             with stdLabel_lr:
                 st.write("Std:")
             with stdInput_lr:
-                std_value_lr = st.number_input("Std: ", min_value=0.0, max_value=1.0, value=.9, step=.01, label_visibility="collapsed", key="std_value_lr")
+                config["learning_rate_std"] = st.number_input("Std: ", min_value=0.0, max_value=1.0, value=.9, step=.01, label_visibility="collapsed", key="std_value_lr")
 
 
         elif rundata["model_type"] == "Tree Based":
@@ -328,7 +356,7 @@ with col1:
                     runLCCDE(config, rundata, runs)
                     st.rerun()
                 elif rundata["model_type"] == "MTH":
-                    # runLCCDE(config, rundata, runs)
+                    runMTH(config, rundata, runs)
                     st.rerun()
                 elif rundata["model_type"] == "Tree Based":
                     runTreeBased(config, rundata, runs)

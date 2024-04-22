@@ -28,12 +28,11 @@ config = {
     'criterion': ['gini', 'entropy'], #Remove this one (aka add it back)
     'learning_rate': {'mean': 0.01, 'std': 0.9}
 }
-config['criterion'] = ['gini', 'entropy']
 
-def MTH(config):
+def run(config):
     outputs = {}
     #Read dataset
-    df = pd.read_csv('./data/CICIDS2017_sample.csv') 
+    df = pd.read_csv('{}/../data/{}.csv'.format(__file__, config['dataset']))
     # The results in this code is based on the original CICIDS2017 dataset. Please go to cell [21] if you work on the sampled dataset. 
 
     # Z-score normalization
@@ -83,7 +82,7 @@ def MTH(config):
     result = pd.concat([result, df_minor], ignore_index=True)
 
     # Read the sampled dataset
-    df=pd.read_csv('./data/CICIDS2017_sample_km.csv')
+    df = pd.read_csv('{}/../data/{}_km.csv'.format(__file__, config['dataset']))
 
     features = df.dtypes[df.dtypes != 'object'].index
 
