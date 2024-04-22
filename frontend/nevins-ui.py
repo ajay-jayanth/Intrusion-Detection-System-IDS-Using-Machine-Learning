@@ -66,6 +66,56 @@ def result_to_table1_TreeBased(run):
     
     return {}
 
+def result_to_table1_MTH(run):
+    if run["config"] != {}:
+        data = {
+            "Method": ["Random Forest", "Random Forest (HPO)", "Decision Tree", "Decision Tree (HPO)", "Extra Trees", "Extra Trees (HPO)", "MTH-DS", "MTH-IDS (HPO)"],
+            "Accuracy (%)": [
+                run["result"]["random_forest_accuracy"],
+                run["result"]["random_forest_hpo_accuracy"],
+                run["result"]["decision_tree_accuracy"],
+                run["result"]["decision_tree_hpo_accuracy"],
+                run["result"]["extra_trees_accuracy"],
+                run["result"]["extra_trees_hpo_accuracy"],
+                run["result"]["mth_ids_accuracy"],
+                run["result"]["mth_ids_hpo_accuracy"]
+            ], 
+            "Precision (%)": [
+                run["result"]["random_forest_precision"],
+                run["result"]["random_forest_hpo_precision"],
+                run["result"]["decision_tree_precision"],
+                run["result"]["decision_tree_hpo_precision"],
+                run["result"]["extra_trees_precision"],
+                run["result"]["extra_trees_hpo_precision"],
+                run["result"]["mth_ids_precision"],
+                run["result"]["mth_ids_hpo_precision"]
+            ],
+            "Recall (%)": [
+                run["result"]["random_forest_F1"],
+                run["result"]["random_forest_hpo_F1"],
+                run["result"]["decision_tree_F1"],
+                run["result"]["decision_tree_hpo_F1"],
+                run["result"]["extra_trees_F1"],
+                run["result"]["extra_trees_hpo_F1"],
+                run["result"]["mth_ids_F1"],
+                run["result"]["mth_ids_hpo_F1"]
+            ],
+            "F1 (%)": [
+                run["result"]["random_forest_recall"],
+                run["result"]["random_forest_hpo_recall"],
+                run["result"]["decision_tree_recall"],
+                run["result"]["decision_tree_hpo_recall"],
+                run["result"]["extra_trees_recall"],
+                run["result"]["extra_trees_hpo_recall"],
+                run["result"]["mth_ids_recall"],
+                run["result"]["mth_ids_hpo_recall"]
+            ]
+        }
+
+        return pd.DataFrame(data)
+    
+    return {}
+
 def runLCCDE(config, rundata, runs):
     #do timestamp
     rundata["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -135,6 +185,10 @@ paper_runs_Tree_Based = {}
 with open('Tree_Based_Paper.json', 'r') as f:
     paper_runs_Tree_Based = json.load(f)
 
+paper_runs_MTH = {}
+with open('MTH_Paper.json', 'r') as f:
+    paper_runs_MTH = json.load(f)
+
 #do the past runs
 runs = {}
 with open('runs.json', 'r') as f:
@@ -193,6 +247,25 @@ with col1:
         st.session_state.test_data_percent = st.session_state.copied_parameters["test_data_percent"]
         st.session_state.random_state = st.session_state.copied_parameters["random_state"]
         st.session_state.boosting_type = st.session_state.copied_parameters["boosting_type"]
+
+        st.session_state.max_value_ne = st.session_state.copied_parameters["n_estimators_max"]
+        st.session_state.min_value_ne = st.session_state.copied_parameters["n_estimators_min"]
+        st.session_state.step_value_ne = st.session_state.copied_parameters["n_estimators_step"]
+        st.session_state.max_value_md = st.session_state.copied_parameters["max_depth_max"]
+        st.session_state.min_value_md = st.session_state.copied_parameters["max_depth_min"]
+        st.session_state.step_value_md = st.session_state.copied_parameters["max_depth_step"]
+        st.session_state.max_value_mf = st.session_state.copied_parameters["max_features_max"]
+        st.session_state.min_value_mf = st.session_state.copied_parameters["max_features_min"]
+        st.session_state.step_value_mf = st.session_state.copied_parameters["max_features_step"]
+        st.session_state.max_value_mss = st.session_state.copied_parameters["min_samples_split_max"]
+        st.session_state.min_value_mss = st.session_state.copied_parameters["min_samples_split_min"]
+        st.session_state.step_value_mss = st.session_state.copied_parameters["min_samples_split_step"]
+        st.session_state.max_value_msl = st.session_state.copied_parameters["min_samples_leaf_max"]
+        st.session_state.min_value_msl = st.session_state.copied_parameters["min_samples_leaf_min"]
+        st.session_state.step_value_msl = st.session_state.copied_parameters["min_samples_leaf_step"]
+        st.session_state.mean_value_lr = st.session_state.copied_parameters["learning_rate_mean"]
+        st.session_state.std_value_lr = st.session_state.copied_parameters["learning_rate_std"]
+
         #st.session_state.smote = st.session_state.copied_parameters["smote"]
     st.session_state.copy_parameters = False
 
@@ -380,7 +453,112 @@ with col1:
 
             st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
         elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
-            st.write("test for MTH")
+            st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
+            
+            st.selectbox("Dataset: ", ["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], key="dataset_MTH", disabled=True)
+            
+            # Get user inputs for max, min, and step for n estimators
+            st.write("N Estimators: ")
+            maxLabel_ne, maxInput_ne, minLabel_ne, minInput_ne, stepLabel_ne, stepInput_ne = st.columns(6)
+            with maxLabel_ne:
+                st.write("Max:")
+            with maxInput_ne:
+                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["n_estimators_max"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput0")
+
+            with minLabel_ne:
+                st.write("Min:")
+            with minInput_ne:
+                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["n_estimators_min"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput1")
+
+            with stepLabel_ne:
+                st.write("Step:")
+            with stepInput_ne: 
+                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["n_estimators_step"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput2")
+            
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Max Depth: ")
+            maxLabel_md, maxInput_md, minLabel_md, minInput_md, stepLabel_md, stepInput_md = st.columns(6)
+            with maxLabel_md:
+                st.write("Max:")
+            with maxInput_md:
+                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_depth_max"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput3")
+
+            with minLabel_md:
+                st.write("Min:")
+            with minInput_md:
+                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["max_depth_min"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput4")
+
+            with stepLabel_md:
+                st.write("Step:")
+            with stepInput_md: 
+                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_depth_step"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput5") #need random key for some reason
+
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Max Features: ")
+            maxLabel_mf, maxInput_mf, minLabel_mf, minInput_mf, stepLabel_mf, stepInput_mf = st.columns(6)
+            with maxLabel_mf:
+                st.write("Max:")
+            with maxInput_mf:
+                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_features_max"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput6")
+
+            with minLabel_mf:
+                st.write("Min:")
+            with minInput_mf:
+                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["max_features_min"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput7")
+
+            with stepLabel_mf:
+                st.write("Step:")
+            with stepInput_mf: 
+                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_features_step"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput8")
+
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Min Samples Split: ")
+            maxLabel_mss, maxInput_mss, minLabel_mss, minInput_mss, stepLabel_mss, stepInput_mss = st.columns(6)
+            with maxLabel_mss:
+                st.write("Max:")
+            with maxInput_mss:
+                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_split_max"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput9")
+
+            with minLabel_mss:
+                st.write("Min:")
+            with minInput_mss:
+                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["min_samples_split_min"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput10")
+
+            with stepLabel_mss:
+                st.write("Step:")
+            with stepInput_mss: 
+                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_split_step"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput11")
+
+            # Get user inputs for max, min, and step for n estimators
+            st.write("Min Samples Leaf: ")
+            maxLabel_msl, maxInput_msl, minLabel_msl, minInput_msl, stepLabel_msl, stepInput_msl = st.columns(6)
+            with maxLabel_msl:
+                st.write("Max:")
+            with maxInput_msl:
+                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_leaf_max"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput12")
+
+            with minLabel_msl:
+                st.write("Min:")
+            with minInput_msl:
+                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["min_samples_leaf_min"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput13")
+
+            with stepLabel_msl:
+                st.write("Step:")
+            with stepInput_msl: 
+                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_leaf_step"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput14")
+
+            st.write("Learning Rate: ")
+            meanLabel_lr, meanInput_lr, stdLabel_lr, stdInput_lr= st.columns(4)
+            with meanLabel_lr:
+                st.write("Mean:")
+            with meanInput_lr:
+                st.number_input("Mean: ", min_value=0.0, max_value=1.0, value=runs["runs"][currentRun - 1]["config"]["learning_rate_mean"], step=.01, label_visibility="collapsed", disabled=True, key="randomKeyInput15")
+            
+            with stdLabel_lr:
+                st.write("Std:")
+            with stdInput_lr:
+                st.number_input("Std: ", min_value=0.0, max_value=1.0, value=runs["runs"][currentRun - 1]["config"]["learning_rate_std"], step=.01, label_visibility="collapsed", disabled=True, key="randomKeyInput16")
+
         elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
             st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
 
@@ -419,10 +597,28 @@ with col1:
                 st.session_state.copied_parameters = {
                     "model_type": runs["runs"][currentRun - 1]["rundata"]["model_type"],
                     "dataset": runs["runs"][currentRun - 1]["config"]["dataset"],
-                    "test_data_percent": runs["runs"][currentRun - 1]["config"]["test_data_percent"],
-                    "random_state": runs["runs"][currentRun - 1]["config"]["random_state"],
+                    "test_data_percent": runs["runs"][currentRun - 1]["config"]["test_data_percent"] if "test_data_percent" in runs["runs"][currentRun - 1]["config"] else "",
+                    "random_state": runs["runs"][currentRun - 1]["config"]["random_state"] if "random_state" in runs["runs"][currentRun - 1]["config"] else "",
                     "boosting_type": runs["runs"][currentRun - 1]["config"]["boosting_type"] if "boosting_type" in runs["runs"][currentRun - 1]["config"] else "",
-                    "smote": runs["runs"][currentRun - 1]["config"]["smote"]
+                    "smote": runs["runs"][currentRun - 1]["config"]["smote"] if "smote" in runs["runs"][currentRun - 1]["config"] else "",
+
+                    "n_estimators_max": runs["runs"][currentRun - 1]["config"]["n_estimators_max"] if "n_estimators_max" in runs["runs"][currentRun - 1]["config"] else "",
+                    "n_estimators_min": runs["runs"][currentRun - 1]["config"]["n_estimators_min"] if "n_estimators_min" in runs["runs"][currentRun - 1]["config"] else "",
+                    "n_estimators_step": runs["runs"][currentRun - 1]["config"]["n_estimators_step"] if "n_estimators_step" in runs["runs"][currentRun - 1]["config"] else "",
+                    "max_depth_max": runs["runs"][currentRun - 1]["config"]["max_depth_max"] if "max_depth_max" in runs["runs"][currentRun - 1]["config"] else "",
+                    "max_depth_min": runs["runs"][currentRun - 1]["config"]["max_depth_min"] if "max_depth_min" in runs["runs"][currentRun - 1]["config"] else "",
+                    "max_depth_step": runs["runs"][currentRun - 1]["config"]["max_depth_step"] if "max_depth_step" in runs["runs"][currentRun - 1]["config"] else "",
+                    "max_features_max": runs["runs"][currentRun - 1]["config"]["max_features_max"] if "max_features_max" in runs["runs"][currentRun - 1]["config"] else "",
+                    "max_features_min": runs["runs"][currentRun - 1]["config"]["max_features_min"] if "max_features_min" in runs["runs"][currentRun - 1]["config"] else "",
+                    "max_features_step": runs["runs"][currentRun - 1]["config"]["max_features_step"] if "max_features_step" in runs["runs"][currentRun - 1]["config"] else "",
+                    "min_samples_split_max": runs["runs"][currentRun - 1]["config"]["min_samples_split_max"] if "min_samples_split_max" in runs["runs"][currentRun - 1]["config"] else "",
+                    "min_samples_split_min": runs["runs"][currentRun - 1]["config"]["min_samples_split_min"] if "min_samples_split_min" in runs["runs"][currentRun - 1]["config"] else "",
+                    "min_samples_split_step": runs["runs"][currentRun - 1]["config"]["min_samples_split_step"] if "min_samples_split_step" in runs["runs"][currentRun - 1]["config"] else "",
+                    "min_samples_leaf_max": runs["runs"][currentRun - 1]["config"]["min_samples_leaf_max"] if "min_samples_leaf_max" in runs["runs"][currentRun - 1]["config"] else "",
+                    "min_samples_leaf_min": runs["runs"][currentRun - 1]["config"]["min_samples_leaf_min"] if "min_samples_leaf_min" in runs["runs"][currentRun - 1]["config"] else "",
+                    "min_samples_leaf_step": runs["runs"][currentRun - 1]["config"]["min_samples_leaf_step"] if "min_samples_leaf_step" in runs["runs"][currentRun - 1]["config"] else "",
+                    "learning_rate_mean": runs["runs"][currentRun - 1]["config"]["learning_rate_mean"] if "learning_rate_mean" in runs["runs"][currentRun - 1]["config"] else "",
+                    "learning_rate_std": runs["runs"][currentRun - 1]["config"]["learning_rate_std"] if "learning_rate_std" in runs["runs"][currentRun - 1]["config"] else ""
                 }
 
                 st.session_state.copy_parameters = True
@@ -444,7 +640,8 @@ with col2:
                 st.table(result_to_table1_LCCDE(paper_runs_LCCDE["CarHacking"]))
                 st.table(result_to_table2_LCCDE(paper_runs_LCCDE["CarHacking"]))
         elif rundata["model_type"] == "MTH":
-            left, right = st.columns(2)
+            st.write("CICIDS2017 Dataset Results")
+            st.table(result_to_table1_MTH(paper_runs_MTH["CICIDS2017"]))
         elif rundata["model_type"] == "Tree Based":
             left, right = st.columns(2)
             with left:
@@ -467,7 +664,7 @@ with col2:
                 st.table(result_to_table1_LCCDE(runs["runs"][currentRun - 1]))
                 st.table(result_to_table2_LCCDE(runs["runs"][currentRun - 1]))
             elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
-                pass
+                st.table(result_to_table1_MTH(runs["runs"][currentRun - 1]))
             elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
                 st.table(result_to_table1_TreeBased(runs["runs"][currentRun - 1]))
         else:
@@ -478,7 +675,7 @@ with col2:
                     st.table(result_to_table1_LCCDE(runs["runs"][currentRun - 1]))
                     st.table(result_to_table2_LCCDE(runs["runs"][currentRun - 1]))
                 elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
-                    pass
+                    st.table(result_to_table1_MTH(runs["runs"][currentRun - 1]))
                 elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
                     st.table(result_to_table1_TreeBased(runs["runs"][currentRun - 1]))
             with right:
@@ -487,7 +684,7 @@ with col2:
                     st.table(result_to_table1_LCCDE(runs["runs"][compareRun - 1]))
                     st.table(result_to_table2_LCCDE(runs["runs"][compareRun - 1]))
                 elif runs["runs"][compareRun - 1]["rundata"]["model_type"] == "MTH":
-                    pass
+                    st.table(result_to_table1_MTH(runs["runs"][currentRun - 1]))
                 elif runs["runs"][compareRun - 1]["rundata"]["model_type"] == "Tree Based":
                     st.table(result_to_table1_TreeBased(runs["runs"][compareRun - 1]))
 

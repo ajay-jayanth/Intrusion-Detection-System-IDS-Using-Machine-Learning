@@ -1,0 +1,63 @@
+{
+    "CICIDS2017": {
+        "rundata": {
+            "name": "MTH PAPER - CICIDS2017 Dataset",
+            "model_type": "MTH",
+            "timestamp": "08/05/2022"
+        },
+        "config": {
+            "dataset": "CICIDS2017_sample",
+            "n_estimators_max": 200,
+            "n_estimators_min": 10,
+            "n_estimators_step": 1,
+            "max_depth_max": 50,
+            "max_depth_min": 5,
+            "max_depth_step": 1,
+            "max_features_max": 20,
+            "max_features_min": 1,
+            "max_features_step": 1,
+            "min_samples_split_max": 11,
+            "min_samples_split_min": 2,
+            "min_samples_split_step": 1,
+            "min_samples_leaf_max": 11,
+            "min_samples_leaf_min": 1,
+            "min_samples_leaf_step": 1,
+            "learning_rate_mean": 0.01,
+            "learning_rate_std": 0.9
+        },
+        "result": {
+            "random_forest_accuracy": 0.9882,
+            "random_forest_precision": 0.988,
+            "random_forest_F1": 0.988,
+            "random_forest_recall": 0.014,
+            "random_forest_hpo_accuracy": null,
+            "random_forest_hpo_precision": null,
+            "random_forest_hpo_F1": null,
+            "random_forest_hpo_recall": null,
+            "decision_tree_accuracy": 0.9895,
+            "decision_tree_precision": 0.9582,
+            "decision_tree_F1": 0.9581,
+            "decision_tree_recall": 0.0419,
+            "decision_tree_hpo_accuracy": null,
+            "decision_tree_hpo_precision": null,
+            "decision_tree_hpo_F1": null,
+            "decision_tree_hpo_recall": null,
+            "extra_trees_accuracy": null,
+            "extra_trees_precision": null,
+            "extra_trees_F1": null,
+            "extra_trees_recall": null,
+            "extra_trees_hpo_accuracy": null,
+            "extra_trees_hpo_precision": null,
+            "extra_trees_hpo_F1": null,
+            "extra_trees_hpo_recall": null,
+            "mth_ids_accuracy": 0.99861,
+            "mth_ids_precision": 0.99753,
+            "mth_ids_F1": 0.99860,
+            "mth_ids_recall": 0.110,
+            "mth_ids_hpo_accuracy": 0.99879,
+            "mth_ids_hpo_precision": 0.99818,
+            "mth_ids_hpo_F1": 0.99879,
+            "mth_ids_hpo_recall": 0.1
+        }
+    }
+}
