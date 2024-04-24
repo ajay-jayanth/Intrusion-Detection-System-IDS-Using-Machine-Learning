@@ -14,3 +14,4 @@ RPM_dataset.csv
 datasets.zip
 */catboost_info
 intrusion-detection-app/node_modules
+*/__pycache__

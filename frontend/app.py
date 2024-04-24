@@ -204,6 +204,9 @@ if 'copy_parameters' not in st.session_state:
 
 if 'delete_run' not in st.session_state:
     st.session_state.delete_run = False
+
+if 'compare_run' not in st.session_state:
+    st.session_state.compare_run = 0
 #STREAMLIT ---------------------------------------------------------------------------------------------------------------
 st.set_page_config(layout="wide") #make page wide
 
@@ -436,146 +439,77 @@ with col1:
                     st.rerun()
 
     else:
-        st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True)
+        def show_material(randomKey, currentRun=currentRun):
+            st.text_input('Run Name: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["name"]), disabled=True, key="randomKey0" + str(randomKey))
+            
+            st.selectbox('Model Type: ', ["{}".format(runs["runs"][currentRun - 1]["rundata"]["model_type"])], disabled=True, key="randomKey1" + str(randomKey))
+
+            if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
+                st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True, key="randomKey2" + str(randomKey))
+
+                st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True, key="randomKey3" + str(randomKey))
+
+                st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True, key="randomKey4" + str(randomKey))
+
+                st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True, key="randomKey5" + str(randomKey))
+
+                st.selectbox("Boosting Type: ", [runs["runs"][currentRun - 1]["config"]["boosting_type"]], disabled=True, key="randomKey6" + str(randomKey))
+
+                st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True, key="randomKey7" + str(randomKey))
+            elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
+                st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True, key="randomKey8" + str(randomKey))
+                
+                st.selectbox("Dataset: ", ["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True, key="randomKey9" + str(randomKey))
+                
+                # Get user inputs for max, min, and step for n estimators
+                st.write("N Estimators: ")
+                st.write("Max: {} Min: {} Step: {}".format(runs["runs"][currentRun - 1]["config"]["n_estimators_max"], runs["runs"][currentRun - 1]["config"]["n_estimators_min"], runs["runs"][currentRun - 1]["config"]["n_estimators_step"]))
+                
+                # Get user inputs for max, min, and step for n estimators
+                st.write("Max Depth: ")
+                st.write("Max: {} Min: {} Step: {}".format(runs["runs"][currentRun - 1]["config"]["max_depth_max"], runs["runs"][currentRun - 1]["config"]["max_depth_min"], runs["runs"][currentRun - 1]["config"]["max_depth_step"]))
+
+                # Get user inputs for max, min, and step for n estimators
+                st.write("Max Features: ")
+                st.write("Max: {} Min: {} Step: {}".format(runs["runs"][currentRun - 1]["config"]["max_features_max"], runs["runs"][currentRun - 1]["config"]["max_features_min"], runs["runs"][currentRun - 1]["config"]["max_features_step"]))
+
+                # Get user inputs for max, min, and step for n estimators
+                st.write("Min Samples Split: ")
+                st.write("Max: {} Min: {} Step: {}".format(runs["runs"][currentRun - 1]["config"]["min_samples_split_max"], runs["runs"][currentRun - 1]["config"]["min_samples_split_min"], runs["runs"][currentRun - 1]["config"]["min_samples_split_step"]))
+
+                # Get user inputs for max, min, and step for n estimators
+                st.write("Min Samples Leaf: ")
+                st.write("Max: {} Min: {} Step: {}".format(runs["runs"][currentRun - 1]["config"]["min_samples_leaf_max"], runs["runs"][currentRun - 1]["config"]["min_samples_leaf_min"], runs["runs"][currentRun - 1]["config"]["min_samples_leaf_step"]))
+
+                st.write("Learning Rate: ")
+                st.write("Mean: {} Std: {}".format(runs["runs"][currentRun - 1]["config"]["learning_rate_mean"], runs["runs"][currentRun - 1]["config"]["learning_rate_std"]))
+
+            elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
+                st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True, key="randomKey10" + str(randomKey))
+
+                st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True, key="randomKey11" + str(randomKey))
+
+                st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True, key="randomKey12" + str(randomKey))
+
+                st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True, key="randomKey13" + str(randomKey))
+
+                st.slider("Feature Trimming: ", 0.01, 1.0, runs["runs"][currentRun - 1]["config"]["feature_trimming"], 0.01, disabled=True, key="randomKey14" + str(randomKey))
+
+                st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default= runs["runs"][currentRun - 1]["config"]["model_types"], disabled=True, key="randomKey15" + str(randomKey))
+
+                st.number_input("XGBoost n estimators: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["XGBoost_n_estimators"], step=1, disabled=True, key="randomKey16" + str(randomKey))
+                
+                st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True, key="randomKey17" + str(randomKey))
         
-        st.selectbox('Model Type: ', ["{}".format(runs["runs"][currentRun - 1]["rundata"]["model_type"])], disabled=True)
-
-        if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
-            st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
-
-            st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True)
-
-            st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True)
-
-            st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
-
-            st.selectbox("Boosting Type: ", [runs["runs"][currentRun - 1]["config"]["boosting_type"]], disabled=True)
-
-            st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
-        elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "MTH":
-            st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
-            
-            st.selectbox("Dataset: ", ["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], key="dataset_MTH", disabled=True)
-            
-            # Get user inputs for max, min, and step for n estimators
-            st.write("N Estimators: ")
-            maxLabel_ne, maxInput_ne, minLabel_ne, minInput_ne, stepLabel_ne, stepInput_ne = st.columns(6)
-            with maxLabel_ne:
-                st.write("Max:")
-            with maxInput_ne:
-                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["n_estimators_max"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput0")
-
-            with minLabel_ne:
-                st.write("Min:")
-            with minInput_ne:
-                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["n_estimators_min"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput1")
-
-            with stepLabel_ne:
-                st.write("Step:")
-            with stepInput_ne: 
-                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["n_estimators_step"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput2")
-            
-            # Get user inputs for max, min, and step for n estimators
-            st.write("Max Depth: ")
-            maxLabel_md, maxInput_md, minLabel_md, minInput_md, stepLabel_md, stepInput_md = st.columns(6)
-            with maxLabel_md:
-                st.write("Max:")
-            with maxInput_md:
-                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_depth_max"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput3")
-
-            with minLabel_md:
-                st.write("Min:")
-            with minInput_md:
-                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["max_depth_min"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput4")
-
-            with stepLabel_md:
-                st.write("Step:")
-            with stepInput_md: 
-                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_depth_step"], step=1, label_visibility="collapsed", disabled = True, key="randomKeyInput5") #need random key for some reason
-
-            # Get user inputs for max, min, and step for n estimators
-            st.write("Max Features: ")
-            maxLabel_mf, maxInput_mf, minLabel_mf, minInput_mf, stepLabel_mf, stepInput_mf = st.columns(6)
-            with maxLabel_mf:
-                st.write("Max:")
-            with maxInput_mf:
-                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_features_max"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput6")
-
-            with minLabel_mf:
-                st.write("Min:")
-            with minInput_mf:
-                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["max_features_min"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput7")
-
-            with stepLabel_mf:
-                st.write("Step:")
-            with stepInput_mf: 
-                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["max_features_step"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput8")
-
-            # Get user inputs for max, min, and step for n estimators
-            st.write("Min Samples Split: ")
-            maxLabel_mss, maxInput_mss, minLabel_mss, minInput_mss, stepLabel_mss, stepInput_mss = st.columns(6)
-            with maxLabel_mss:
-                st.write("Max:")
-            with maxInput_mss:
-                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_split_max"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput9")
-
-            with minLabel_mss:
-                st.write("Min:")
-            with minInput_mss:
-                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["min_samples_split_min"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput10")
-
-            with stepLabel_mss:
-                st.write("Step:")
-            with stepInput_mss: 
-                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_split_step"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput11")
-
-            # Get user inputs for max, min, and step for n estimators
-            st.write("Min Samples Leaf: ")
-            maxLabel_msl, maxInput_msl, minLabel_msl, minInput_msl, stepLabel_msl, stepInput_msl = st.columns(6)
-            with maxLabel_msl:
-                st.write("Max:")
-            with maxInput_msl:
-                st.number_input("Max: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_leaf_max"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput12")
-
-            with minLabel_msl:
-                st.write("Min:")
-            with minInput_msl:
-                st.number_input("Min: ", min_value=0, value=runs["runs"][currentRun - 1]["config"]["min_samples_leaf_min"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput13")
-
-            with stepLabel_msl:
-                st.write("Step:")
-            with stepInput_msl: 
-                st.number_input("Step: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["min_samples_leaf_step"], step=1, label_visibility="collapsed", disabled=True, key="randomKeyInput14")
-
-            st.write("Learning Rate: ")
-            meanLabel_lr, meanInput_lr, stdLabel_lr, stdInput_lr= st.columns(4)
-            with meanLabel_lr:
-                st.write("Mean:")
-            with meanInput_lr:
-                st.number_input("Mean: ", min_value=0.0, max_value=1.0, value=runs["runs"][currentRun - 1]["config"]["learning_rate_mean"], step=.01, label_visibility="collapsed", disabled=True, key="randomKeyInput15")
-            
-            with stdLabel_lr:
-                st.write("Std:")
-            with stdInput_lr:
-                st.number_input("Std: ", min_value=0.0, max_value=1.0, value=runs["runs"][currentRun - 1]["config"]["learning_rate_std"], step=.01, label_visibility="collapsed", disabled=True, key="randomKeyInput16")
-
-        elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
-            st.text_input('Timestamp: ', '{}'.format(runs["runs"][currentRun - 1]["rundata"]["timestamp"]), disabled=True)
-
-            st.selectbox("Dataset: ",["{}".format(runs["runs"][currentRun - 1]["config"]["dataset"])], disabled=True)
-
-            st.slider("Test Data Percent: ", 0.01, .99, runs["runs"][currentRun - 1]["config"]["test_data_percent"], 0.01, disabled=True)
-
-            st.number_input("Random State: ", value=runs["runs"][currentRun - 1]["config"]["random_state"], step=1, disabled=True)
-
-            st.slider("Feature Trimming: ", 0.01, 1.0, runs["runs"][currentRun - 1]["config"]["feature_trimming"], 0.01, disabled=True)
-
-            st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default= runs["runs"][currentRun - 1]["config"]["model_types"], disabled=True)
-
-            st.number_input("XGBoost n estimators: ", min_value=1, value=runs["runs"][currentRun - 1]["config"]["XGBoost_n_estimators"], step=1, disabled=True)
-            
-            st.text_input('SMOTE (optional): ', runs["runs"][currentRun - 1]["config"]["smote"], disabled=True)
-
+        if st.session_state.compare_run == 0:
+            show_material(0)
+        else:
+            left_half, right_half = st.columns(2)
+            with left_half:
+                show_material(1)
+            with right_half:
+                show_material(2, st.session_state.compare_run)
+    
         left, right = st.columns(2)
         with left:
             #display delete button
@@ -624,6 +558,8 @@ with col1:
                 st.session_state.copy_parameters = True
                 st.rerun()
 
+            
+
 #right 2/3 of the screen
 with col2:
     if currentRun == 0:
@@ -657,6 +593,9 @@ with col2:
         compareOptions = {value: index for index, value in enumerate(compareOptions)}
         compareRun = st.selectbox("Compare Run With: ", compareOptions.keys(),index = 0)
         compareRun = compareOptions[compareRun]
+        if st.session_state.compare_run != compareRun:
+            st.session_state.compare_run = compareRun
+            st.rerun()
 
         if compareRun == 0:
             st.write(list(compareOptions.keys())[currentRun])
@@ -684,7 +623,7 @@ with col2:
                     st.table(result_to_table1_LCCDE(runs["runs"][compareRun - 1]))
                     st.table(result_to_table2_LCCDE(runs["runs"][compareRun - 1]))
                 elif runs["runs"][compareRun - 1]["rundata"]["model_type"] == "MTH":
-                    st.table(result_to_table1_MTH(runs["runs"][currentRun - 1]))
+                    st.table(result_to_table1_MTH(runs["runs"][compareRun - 1]))
                 elif runs["runs"][compareRun - 1]["rundata"]["model_type"] == "Tree Based":
                     st.table(result_to_table1_TreeBased(runs["runs"][compareRun - 1]))
 
