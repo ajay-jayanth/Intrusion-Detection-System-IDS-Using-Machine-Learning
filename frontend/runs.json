@@ -307,6 +307,49 @@
                 "mth_ids_hpo_F1": 0.9958762421495252,
                 "mth_ids_hpo_recall": 0.9958955223880597
             }
+        },
+        {
+            "rundata": {
+                "name": "Run 6",
+                "model_type": "Tree Based",
+                "timestamp": "2024-04-26 09:24:23"
+            },
+            "config": {
+                "dataset": "CICIDS2017_sample_km",
+                "test_data_percent": 0.2,
+                "random_state": 0,
+                "feature_trimming": 0.9,
+                "model_types": [
+                    "decision tree",
+                    "random forest",
+                    "extra trees",
+                    "XGBoost"
+                ],
+                "XGBoost_n_estimators": 10,
+                "smote": ""
+            },
+            "result": {
+                "decision_tree_accuracy": 0.9919776119402985,
+                "decision_tree_precision": 0.9920784870709628,
+                "decision_tree_recall": 0.9919776119402985,
+                "decision_tree_F1_score": 0.9919680197836106,
+                "random_forest_accuracy": 0.994589552238806,
+                "random_forest_precision": 0.9946186578993843,
+                "random_forest_recall": 0.994589552238806,
+                "random_forest_F1_score": 0.9945522270917948,
+                "extra_trees_accuracy": 0.9895522388059701,
+                "extra_trees_precision": 0.9896143096716483,
+                "extra_trees_recall": 0.9895522388059701,
+                "extra_trees_F1_score": 0.9895181534577047,
+                "XGBoost_accuracy": 0.9944029850746269,
+                "XGBoost_precision": 0.9944121313123421,
+                "XGBoost_recall": 0.9944029850746269,
+                "XGBoost_F1_score": 0.994327003011927,
+                "stacking_accuracy": 0.9914179104477612,
+                "stacking_precision": 0.9916729288114946,
+                "stacking_recall": 0.9914179104477612,
+                "stacking_F1_score": 0.9914498951806838
+            }
         }
     ]
 }

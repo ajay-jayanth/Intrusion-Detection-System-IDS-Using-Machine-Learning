@@ -291,23 +291,23 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-        rundata["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type")
+        rundata["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type", help="Choose base model IDS to train.")
 
         if rundata["model_type"] == "LCCDE":
-            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample_km", "carHackingDataset_sample_km"), key="dataset")
+            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample_km", "carHackingDataset_sample_km"), key="dataset", help="dataset you are going to train your model")
             
-            config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent if "test_data_percent" in st.session_state else .2), step=0.01, key="test_data_percent")
+            config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent if "test_data_percent" in st.session_state else .2), step=0.01, key="test_data_percent", help="Percentage of dataset used for validation, other 1-[test_data_percet] is used for training.")
 
-            config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state")
+            config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state", help="random number used to determine train test split")
 
-            config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"), key="boosting_type")
+            config["boosting_type"] = st.selectbox("Boosting Type: ", ("Plain", "Ordered"), key="boosting_type", help="XGBoost Model boosting type. Plain is standard algorithm. Boosted uses random permutations of training examples.")
 
-            config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "")
+            config["smote"] = st.text_input('SMOTE (optional): ', '{"2":1000, "4":1000}' if config["dataset"] == "CICIDS2017_km" or config["dataset"] == "CICIDS2017_sample_km" else "", help="SMOTE increases the samples of low data points. Increase number of data points with label '2' and '4'")
         elif rundata["model_type"] == "MTH":
-            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017_sample"], key="dataset_MTH")
+            config["dataset"] = st.selectbox("Dataset: ", ["CICIDS2017_sample"], key="dataset_MTH", help="dataset you are going to train your model")
             
             # Get user inputs for max, min, and step for n estimators
-            st.write("N Estimators: ")
+            st.markdown("N Estimators: ", help="The n estimators training parameter for the model.")
             maxLabel_ne, maxInput_ne, minLabel_ne, minInput_ne, stepLabel_ne, stepInput_ne = st.columns(6)
             with maxLabel_ne:
                 st.write("Max:")
@@ -325,7 +325,7 @@ with col1:
                 config["n_estimators_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_ne")
             
             # Get user inputs for max, min, and step for n estimators
-            st.write("Max Depth: ")
+            st.markdown("Max Depth: ", help="The depth (how many layers in model tree) training parameter for the model.")
             maxLabel_md, maxInput_md, minLabel_md, minInput_md, stepLabel_md, stepInput_md = st.columns(6)
             with maxLabel_md:
                 st.write("Max:")
@@ -343,7 +343,7 @@ with col1:
                 config["max_depth_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_md")
 
             # Get user inputs for max, min, and step for n estimators
-            st.write("Max Features: ")
+            st.markdown("Max Features: ", help="The number of features training parameter for the model.")
             maxLabel_mf, maxInput_mf, minLabel_mf, minInput_mf, stepLabel_mf, stepInput_mf = st.columns(6)
             with maxLabel_mf:
                 st.write("Max:")
@@ -361,7 +361,7 @@ with col1:
                 config["max_features_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mf")
 
             # Get user inputs for max, min, and step for n estimators
-            st.write("Min Samples Split: ")
+            st.markdown("Min Samples Split: ", help="The min number of samples used in training the model.")
             maxLabel_mss, maxInput_mss, minLabel_mss, minInput_mss, stepLabel_mss, stepInput_mss = st.columns(6)
             with maxLabel_mss:
                 st.write("Max:")
@@ -379,7 +379,7 @@ with col1:
                 config["min_samples_split_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_mss")
 
             # Get user inputs for max, min, and step for n estimators
-            st.write("Min Samples Leaf: ")
+            st.markdown("Min Samples Leaf: ", help="The min number of samples used as tree leafs in training the model.")
             maxLabel_msl, maxInput_msl, minLabel_msl, minInput_msl, stepLabel_msl, stepInput_msl = st.columns(6)
             with maxLabel_msl:
                 st.write("Max:")
@@ -396,7 +396,7 @@ with col1:
             with stepInput_msl: 
                 config["min_samples_leaf_step"] = st.number_input("Step: ", min_value=1, value=1, step=1, label_visibility="collapsed", key="step_value_msl")
 
-            st.write("Learning Rate: ")
+            st.markdown("Learning Rate: ", help="Constant that determines how fast the model tries to learn on training inputs")
             meanLabel_lr, meanInput_lr, stdLabel_lr, stdInput_lr= st.columns(4)
             with meanLabel_lr:
                 st.write("Mean:")
@@ -410,19 +410,19 @@ with col1:
 
 
         elif rundata["model_type"] == "Tree Based":
-            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample", "CANIntrusion_sample"), key="dataset_TreeBased")
+            config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample", "CICIDS2017_sample_km"), key="dataset_TreeBased", help="dataset you are going to train your model")
             
-            config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent_TreeBased if "test_data_percent_TreeBased" in st.session_state else .2), step=0.01, key="test_data_percent_TreeBased")
+            config["test_data_percent"] = st.slider("Test Data Percent: ", min_value=0.01, max_value=.99,value=(st.session_state.test_data_percent_TreeBased if "test_data_percent_TreeBased" in st.session_state else .2), step=0.01, key="test_data_percent_TreeBased", help="Percentage of dataset used for validation, other 1-[test_data_percet] is used for training.")
 
-            config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state_TreeBased")
+            config["random_state"] = st.number_input("Random State: ", min_value=0, value=0, step=1, key="random_state_TreeBased", help="random number used to determine train test split")
 
-            config["feature_trimming"] = st.slider("Feature Trimming: ", min_value=0.01, max_value=1.0,value=(st.session_state.feature_trimming_TreeBased if "feature_trimming_TreeBased" in st.session_state else .9), step=0.01, key="feature_trimming_TreeBased")
+            config["feature_trimming"] = st.slider("Feature Trimming: ", min_value=0.01, max_value=1.0,value=(st.session_state.feature_trimming_TreeBased if "feature_trimming_TreeBased" in st.session_state else .9), step=0.01, key="feature_trimming_TreeBased", help="Keep top [feature_trimming] percent of imporant features on model retrain")
 
-            config["model_types"] = st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default=["decision tree", "random forest","extra trees", "XGBoost"], key="model_types_TreeBased")
+            config["model_types"] = st.multiselect("Model Types: ", ["decision tree", "random forest","extra trees", "XGBoost"], default=["decision tree", "random forest","extra trees", "XGBoost"], key="model_types_TreeBased", help="models combined together to create final 'tree based' model")
 
-            config["XGBoost_n_estimators"] = st.number_input("XGBoost n estimators: ", min_value=1, value=10, step=1, key="xgboost_n_estimators")
+            config["XGBoost_n_estimators"] = st.number_input("XGBoost n estimators: ", min_value=1, value=10, step=1, key="xgboost_n_estimators", help="'n estimators' parameter used in XGBoost model")
             
-            config["smote"] = st.text_input('SMOTE (optional): ', '{"4":1500}' if config["dataset"] == "CICIDS2017" or config["dataset"] == "CICIDS2017_sample" else "")
+            config["smote"] = st.text_input('SMOTE (optional): ', '{"4":1500}' if config["dataset"] == "CICIDS2017" or config["dataset"] == "CICIDS2017_sample" else "", help="SMOTE increases the samples of low data points. Increase number of data points with label '4'")
 
         #display run button
         if st.button("Run"):
@@ -598,7 +598,7 @@ with col2:
             st.rerun()
 
         if compareRun == 0:
-            st.write(list(compareOptions.keys())[currentRun])
+            st.markdown(list(compareOptions.keys())[currentRun], help="Shows accuracy, precision, recall, and f1 scores for all base models")
             if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
                 st.table(result_to_table1_LCCDE(runs["runs"][currentRun - 1]))
                 st.table(result_to_table2_LCCDE(runs["runs"][currentRun - 1]))
@@ -609,7 +609,7 @@ with col2:
         else:
             left, right = st.columns(2)
             with left:
-                st.write(list(compareOptions.keys())[currentRun])
+                st.markdown(list(compareOptions.keys())[currentRun], help="Shows accuracy, precision, recall, and f1 scores for all base models")
                 if runs["runs"][currentRun - 1]["rundata"]["model_type"] == "LCCDE":
                     st.table(result_to_table1_LCCDE(runs["runs"][currentRun - 1]))
                     st.table(result_to_table2_LCCDE(runs["runs"][currentRun - 1]))
@@ -618,7 +618,7 @@ with col2:
                 elif runs["runs"][currentRun - 1]["rundata"]["model_type"] == "Tree Based":
                     st.table(result_to_table1_TreeBased(runs["runs"][currentRun - 1]))
             with right:
-                st.write(list(compareOptions.keys())[compareRun])
+                st.markdown(list(compareOptions.keys())[compareRun], help="Shows accuracy, precision, recall, and f1 scores for all base models")
                 if runs["runs"][compareRun - 1]["rundata"]["model_type"] == "LCCDE":
                     st.table(result_to_table1_LCCDE(runs["runs"][compareRun - 1]))
                     st.table(result_to_table2_LCCDE(runs["runs"][compareRun - 1]))
