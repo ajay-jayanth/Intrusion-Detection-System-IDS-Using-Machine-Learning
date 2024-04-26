@@ -291,7 +291,7 @@ with col1:
     if currentRun == 0:
         rundata["name"] = st.text_input('Run Name: ', 'Run {}'.format(len(runs["runs"]) + 1))
 
-        rundata["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type", help="Choose base model IDS to train.")
+        rundata["model_type"] = st.selectbox('Model Type: ', ("LCCDE", "MTH", "Tree Based"), key="model_type", help="Choose base IDS model to train.")
 
         if rundata["model_type"] == "LCCDE":
             config["dataset"] = st.selectbox("Dataset: ", ("CICIDS2017_sample_km", "carHackingDataset_sample_km"), key="dataset", help="dataset you are going to train your model")
